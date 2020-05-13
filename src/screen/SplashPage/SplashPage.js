@@ -1,9 +1,11 @@
 import React from 'react';
-import { View, Image, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Image, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
 // import Modal from 'react-native-modalbox';
 // import NoInternetComp from '../../components/NoInternetComp';
 import NetInfo from '@react-native-community/netinfo';
 import { store } from '../../store/store';
+
+const { width } = Dimensions.get('window')
 
 class SplashPage extends React.Component {
 
@@ -54,56 +56,32 @@ class SplashPage extends React.Component {
 
     render() {
         return (
-            <View style={styles.primaryFlexContainerStyle}>
-                <View style={styles.flex1CenterContainerStyle}>
-                    <Image
-                        style={styles.logoImgStyle}
-                        source={require('../../../assets/logo.jpg')}
-                    />
-
-                    <ActivityIndicator color="#fff" style={styles.marginTop25} />
-                </View>
-
-                {/* <Modal
-          style={styles.modal220Style}
-          ref={this.modalInterRef}
-          position="center"
-          swipeToClose={false}
-          backdropPressToClose={false}
-          coverScreen>
-          <NoInternetComp
-            isWarning
-            titleText="No internet sda min"
-            buttonText="daxin oroldox sda gej"
-            donePress={this.checkInternetClick}
-          />
-        </Modal> */}
+            <View style={styles.container}>
+                <Image
+                    style={styles.logoImgStyle}
+                    source={require('../../../assets/logo.jpg')
+                    }
+                />
+                <ActivityIndicator color="#fff" style={styles.marginTop25} />
             </View>
         );
     }
 }
 
 const styles = StyleSheet.create({
-    primaryFlexContainerStyle: {
+    container: {
         flex: 1,
-        backgroundColor: '#fff',
-    },
-    flex1CenterContainerStyle: {
-        flex: 1,
-        alignItems: 'center',
         justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff'
     },
     logoImgStyle: {
-        height: 175,
-        width: 225,
+        width: width * 0.4,
+        resizeMode: "contain"
     },
     marginTop25: {
         marginTop: 25,
-    },
-    modal220Style: {
-        height: 220,
-        backgroundColor: 'transparent',
-    },
+    }
 });
 
 SplashPage.contextType = store;
