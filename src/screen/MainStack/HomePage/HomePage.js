@@ -12,7 +12,6 @@ import {
 import MapView, {Marker} from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-// import axios from 'axios';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {getAddressAsync} from '../../../service/address.service';
 import {getDistance} from 'geolib';
@@ -31,23 +30,20 @@ class HomePage extends Component {
       .string()
       .trim()
       .required('Та утасны дугаарыг заавал оруулна уу!')
-    //   .min(8, 'ta bagadaa baix yostoi')
-    //   .max(8, 'tanii dugaar bagadaa naim baix yostoi‰')
       .matches(/^\d{8}$/g, 'Утасны дугаарыг зөв оруулна уу!'),
     deliveryPhoneNumber: yup
       .string()
       .trim()
       .required('Та утасны дугаарыг заавал оруулна уу!')
-    //   .min(8, 'ta bagadaa baix yostoi')
-    //   .max(8, 'tanii dugaar bagadaa naim baix yostoi‰')
-      .matches(/^\d{8}$/g, 'Утасны дугаарыг зөв оруулна уу!'),
+      .matches(/^\d{8}$/g, 'Утасны дугаарыг зөв оруулна уу!')
   });
+
   constructor(props) {
     super(props);
 
     this.state = {
-      address1: null,
-      address2: null,
+      address1: {},
+      address2: {},
       centerCoordinate: {
         latitude: 47.9169351,
         longitude: 106.921919,
@@ -56,87 +52,70 @@ class HomePage extends Component {
       },
       loading: false,
       customMarkerVisible: true,
-      distance: ''
+      distance: '',
+      imageVisible: true,
     };
     this.onChangeRegionComplete = this.onChangeRegionComplete.bind(this);
   }
 
-  deliveryAddress2 = () => {
-    const {address1, address2, centerCoordinate} = this.state;
-    if (address1 && !address1.latitude) {
-      getAddressAsync(centerCoordinate)
-        .then(result => {
-          if (
-            result &&
-            result.status === 'OK' &&
-            result.results &&
-            result.results.length > 0
-          ) {
-            const {results} = result;
-            const title = results[0].formatted_address;
-            this.setState({
-              address1: {...address1, ...centerCoordinate, title},
-              address2: address1,
-            });
-          }
-        })
-        .catch(e => {
-          console.log('error', e);
-          this.setState({loading: false});
-        });
-    } else if (address2 && !address2.latitude) {
-      getAddressAsync(centerCoordinate)
-        .then(result => {
-          if (
-            result &&
-            result.status === 'OK' &&
-            result.results &&
-            result.results.length > 0
-          ) {
-            const {results} = result;
-            const title = results[0].formatted_address;
-            this.setState(
-              {
-                address2: {...address2, ...centerCoordinate, title},
-                customMarkerVisible: false,
-              },
-              () => {
-                this._panel.show();
-              },
-            );
-          }
-        })
-        .catch(e => {
-          console.log('error', e);
-          this.setState({loading: false});
-        });
-    } else {
-      this._panel.show();
-    }
-  };
-
   deliveryAddress = () => {
-    const {address1, address2, centerCoordinate} = this.state;
-    if (address1 && !address1.latitude) {
-      this.setState({
-        address1: {...address1, ...centerCoordinate},
-        address2: address1,
-      });
-    } else if (address2 && !address2.latitude) {
-      this.setState(
-        {
-          address2: {...address2, ...centerCoordinate},
-          customMarkerVisible: false,
-        },
-        () => {
-          this._panel.show();
-          this.getDistanceCalculate();
-        },
-      );
-    } else {
-      this._panel.show();
-      this.getDistanceCalculate();
-    }
+    const {address1 = {}, address2 = {}, centerCoordinate} = this.state;
+    this.setState({loading: true}, () => {
+      if (!address1.latitude) {
+        getAddressAsync(centerCoordinate)
+          .then(result => {
+            if (
+              result &&
+              result.status === 'OK' &&
+              result.results &&
+              result.results.length > 0
+            ) {
+              const {results} = result;
+              const title = results[0].formatted_address;
+              this.setState({
+                address1: {...address1, ...centerCoordinate, title},
+                address2: {...address1, title},
+                loading: false,
+              });
+            }
+          })
+          .catch(e => {
+            console.log('error', e);
+            this.setState({loading: false});
+          });
+      } else if (!address2.latitude) {
+        getAddressAsync(centerCoordinate)
+          .then(result => {
+            if (
+              result &&
+              result.status === 'OK' &&
+              result.results &&
+              result.results.length > 0
+            ) {
+              const {results} = result;
+              const title = results[0].formatted_address;
+              this.setState(
+                {
+                  address2: {...address2, ...centerCoordinate, title},
+                  customMarkerVisible: false,
+                  imageVisible: false,
+                  loading: false,
+                },
+                () => {
+                  this._panel.show();
+                },
+              );
+            }
+          })
+          .catch(e => {
+            console.log('error', e);
+            this.setState({loading: false});
+          });
+      } else {
+        this.setState({loading: false});
+        this._panel.show();
+      }
+    });
   };
 
   getDistanceCalculate = () => {
@@ -174,35 +153,38 @@ class HomePage extends Component {
   };
 
   renderCustomMarker = () => {
-    const imgSource = !this.state.address2
+    const {imageVisible, address1 = {}} = this.state;
+    const imgSource = !address1.latitude
       ? require('../../../../assets/logo_red.jpg')
       : require('../../../../assets/logo_green.jpg');
-    return (
-      <View style={styles.customMarker}>
-        <View>
-          <Image
-            pointerEvents="none"
-            source={imgSource}
-            style={styles.markerImage}
-          />
-          <View style={styles.rectangle} />
+    if (imageVisible) {
+      return (
+        <View style={styles.customMarker}>
+          <View>
+            <Image
+              pointerEvents="none"
+              source={imgSource}
+              style={styles.markerImage}
+            />
+            <View style={styles.rectangle} />
+          </View>
         </View>
-      </View>
-    );
+      );
+    }
+    return null;
   };
 
   onCheckClick = (values, action) => {
-    console.log('onCheckClick', values);
     const {navigation} = this.props;
     action.isSubmitting = false;
     navigation.navigate('Order');
   };
 
   render() {
-    const {address1, address2} = this.state;
+    const {address1 = {}, address2 = {}} = this.state;
     return (
       <View style={styles.container}>
-        {address1 && (
+        {address1 && address1.title && (
           <View style={styles.inputLocation}>
             <Image
               style={styles.pickLogo}
@@ -217,7 +199,7 @@ class HomePage extends Component {
             </View>
           </View>
         )}
-        {address2 && (
+        {address2 && address2.title && (
           <View style={styles.inputLocation}>
             <Image
               style={styles.pickLogo}
@@ -283,131 +265,128 @@ class HomePage extends Component {
           </TouchableOpacity>
         </View>
 
-        {address1 && address2 && (
-          <SlidingUpPanel
-            ref={c => (this._panel = c)}
-            height={height * 0.8}
-            draggableRange={{top: height * 0.8, bottom: 0}}
-            animatedValue={this._draggedValue}
-            showBackdrop={true}
-            backdropOpacity={0.5}
-            allowMomentum={false}
-            allowDragging={false}>
-            <View style={styles.panel}>
-              <KeyboardAwareScrollView enableOnAndroid={true}>
-                <View style={styles.panelHeader}>
-                  <Text style={styles.sliderTitle}>ХҮРГЭЛТИЙН МЭДЭЭЛЭЛ</Text>
-                </View>
-                <Formik
-                  enableReinitialize
-                  initialValues={{
-                    recievePhoneNumber: '',
-                    deliveryPhoneNumber: '',
-                  }}
-                  validationSchema={this.validationScheme}
-                  onSubmit={(values, action) =>
-                    this.onCheckClick(values, action)
-                  }>
-                  {formikProps => {
-                    const {
-                      values,
-                      touched,
-                      errors,
-                      handleChange = () => {},
-                      handleBlur = () => {},
-                    } = formikProps;
-                    return (
-                      <View style={styles.panelContainer}>
-                        <View style={styles.margin10}>
-                          <View style={styles.inputLocationDetails}>
-                            <Image
-                              style={styles.pickLogo}
-                              source={require('../../../../assets/logo_red.jpg')}
-                            />
-                            <View style={styles.addressInfo} />
-                            <View style={styles.marginLeft8}>
-                              <Text style={styles.addressTitle1}>
-                                Барааг очиж авах хаяг
-                              </Text>
-                              <TextInput style={styles.titleFontSize16}>
-                                {address1.title || ''}
-                              </TextInput>
-                            </View>
-                          </View>
-                        </View>
-                        <View style={styles.space}>
-                          <View style={styles.inputLocationDetails}>
-                            <Image
-                              style={styles.pickLogo}
-                              source={require('../../../../assets/logo_green.jpg')}
-                            />
-                            <View style={styles.addressInfo} />
-                            <View style={styles.marginLeft8}>
-                              <Text style={styles.addressTitle2}>
-                                Барааг хүргэж өгөх хаяг
-                              </Text>
-                              <TextInput style={styles.titleFontSize16}>
-                                {address2.title || ''}
-                              </TextInput>
-                            </View>
-                          </View>
-                        </View>
-                        <View style={styles.space}>
-                          <View>
-                            <Text style={styles.txtDesc}>
-                              Барааг өгөх хүний утасны дугаар
+        <SlidingUpPanel
+          ref={c => (this._panel = c)}
+          height={height * 0.8}
+          draggableRange={{top: height * 0.8, bottom: 0}}
+          animatedValue={this._draggedValue}
+          showBackdrop={true}
+          backdropOpacity={0.5}
+          allowMomentum={false}
+          allowDragging={false}>
+          <View style={styles.panel}>
+            <KeyboardAwareScrollView enableOnAndroid={true}>
+              <View style={styles.panelHeader}>
+                <Text style={styles.sliderTitle}>ХҮРГЭЛТИЙН МЭДЭЭЛЭЛ</Text>
+              </View>
+              <Formik
+                enableReinitialize
+                initialValues={{
+                  recievePhoneNumber: '',
+                  deliveryPhoneNumber: '',
+                }}
+                validationSchema={this.validationScheme}
+                onSubmit={(values, action) =>
+                  this.onCheckClick(values, action)
+                }>
+                {formikProps => {
+                  const {
+                    values,
+                    touched,
+                    errors,
+                    handleChange = () => {},
+                    handleBlur = () => {},
+                  } = formikProps;
+                  return (
+                    <View style={styles.panelContainer}>
+                      <View style={styles.margin10}>
+                        <View style={styles.inputLocationDetails}>
+                          <Image
+                            style={styles.pickLogo}
+                            source={require('../../../../assets/logo_red.jpg')}
+                          />
+                          <View style={styles.addressInfo} />
+                          <View style={styles.marginLeft8}>
+                            <Text style={styles.addressTitle1}>
+                              Барааг очиж авах хаяг
                             </Text>
-                            <TextInput
-                              style={styles.phoneText}
-                              onChangeText={handleChange('deliveryPhoneNumber')}
-                              onBlur={handleBlur('deliveryPhoneNumber')}
-                              defaultValue={values.deliveryPhoneNumber}
-                            />
-                            {touched.deliveryPhoneNumber &&
-                              errors.deliveryPhoneNumber && (
-                                <View
-                                  style={styles.marginTop8RowContainerStyle}>
-                                  <Text style={styles.errorText}>
-                                    {errors.deliveryPhoneNumber}
-                                  </Text>
-                                </View>
-                              )}
+                            <TextInput style={styles.titleFontSize16}>
+                              {address1.title || ''}
+                            </TextInput>
                           </View>
                         </View>
-                        <View style={styles.space}>
+                      </View>
+                      <View style={styles.space}>
+                        <View style={styles.inputLocationDetails}>
+                          <Image
+                            style={styles.pickLogo}
+                            source={require('../../../../assets/logo_green.jpg')}
+                          />
+                          <View style={styles.addressInfo} />
+                          <View style={styles.marginLeft8}>
+                            <Text style={styles.addressTitle2}>
+                              Барааг хүргэж өгөх хаяг
+                            </Text>
+                            <TextInput style={styles.titleFontSize16}>
+                              {address2.title || ''}
+                            </TextInput>
+                          </View>
+                        </View>
+                      </View>
+                      <View style={styles.space}>
+                        <View>
                           <Text style={styles.txtDesc}>
-                            Барааг хүлээн авах хүний утасны дугаар
+                            Барааг өгөх хүний утасны дугаар
                           </Text>
                           <TextInput
                             style={styles.phoneText}
-                            onChangeText={handleChange('recievePhoneNumber')}
-                            onBlur={handleBlur('recievePhoneNumber')}
-                            defaultValue={values.recievePhoneNumber}
+                            onChangeText={handleChange('deliveryPhoneNumber')}
+                            onBlur={handleBlur('deliveryPhoneNumber')}
+                            defaultValue={values.deliveryPhoneNumber}
                           />
-                          {touched.recievePhoneNumber &&
-                            errors.recievePhoneNumber && (
+                          {touched.deliveryPhoneNumber &&
+                            errors.deliveryPhoneNumber && (
                               <View style={styles.marginTop8RowContainerStyle}>
                                 <Text style={styles.errorText}>
-                                  {errors.recievePhoneNumber}
+                                  {errors.deliveryPhoneNumber}
                                 </Text>
                               </View>
                             )}
                         </View>
-                        <View style={styles.btnContainer}>
-                          <TouchableOpacity
-                            style={styles.btn}
-                            onPress={formikProps.handleSubmit}>
-                            <Text style={styles.btnSongoh}>Баталгаажуулах</Text>
-                          </TouchableOpacity>
-                        </View>
                       </View>
-                    );
-                  }}
-                </Formik>
-              </KeyboardAwareScrollView>
-            </View>
-          </SlidingUpPanel>
-        )}
+                      <View style={styles.space}>
+                        <Text style={styles.txtDesc}>
+                          Барааг хүлээн авах хүний утасны дугаар
+                        </Text>
+                        <TextInput
+                          style={styles.phoneText}
+                          onChangeText={handleChange('recievePhoneNumber')}
+                          onBlur={handleBlur('recievePhoneNumber')}
+                          defaultValue={values.recievePhoneNumber}
+                        />
+                        {touched.recievePhoneNumber &&
+                          errors.recievePhoneNumber && (
+                            <View style={styles.marginTop8RowContainerStyle}>
+                              <Text style={styles.errorText}>
+                                {errors.recievePhoneNumber}
+                              </Text>
+                            </View>
+                          )}
+                      </View>
+                      <View style={styles.btnContainer}>
+                        <TouchableOpacity
+                          style={styles.btn}
+                          onPress={formikProps.handleSubmit}>
+                          <Text style={styles.btnSongoh}>Баталгаажуулах</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  );
+                }}
+              </Formik>
+            </KeyboardAwareScrollView>
+          </View>
+        </SlidingUpPanel>
       </View>
     );
   }
