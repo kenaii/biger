@@ -16,9 +16,9 @@ buildscript {
         minSdkVersion = 16
         buildToolsVersion   = "28.0.3"
         playServicesVersion = "17.0.0" // or find latest version
-        androidMapsUtilsVersion = "0.5+"
+        androidMapsUtilsVersion = "1.2.1"
         supportLibVersion = "28.0.0"
-        // androidXCore = "1.0.2"
+        androidXCore = "1.0.2"
     }
     repositories {
         google()
