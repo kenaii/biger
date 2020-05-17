@@ -36,6 +36,14 @@ class HomePage extends Component {
       .trim()
       .required('boglono vv')
       .matches(/^\d{8}$/g, 'is not phonenumber'),
+    recieveAddress: yup
+      .string()
+      .trim()
+      .required('boglono vv'),
+    deliveryAddress: yup
+      .string()
+      .trim()
+      .required('boglono vv'),
   });
 
   constructor(props) {
@@ -55,9 +63,11 @@ class HomePage extends Component {
       imageVisible: true,
     };
     this.onChangeRegionComplete = this.onChangeRegionComplete.bind(this);
+    this.selectAddressClick = this.selectAddressClick.bind(this);
+    this.onCheckClick = this.onCheckClick.bind(this);
   }
 
-  deliveryAddress = () => {
+  selectAddressClick = () => {
     const {address1 = {}, address2 = {}, centerCoordinate} = this.state;
     this.setState({loading: true}, () => {
       if (!address1.latitude) {
@@ -230,7 +240,7 @@ class HomePage extends Component {
             apikey={GOOGLE_MAPS_APIKEY}
           />
           {address1 && address1.latitude && (
-            <Marker coordinate={address1} title={'a1'} description={'b1'}>
+            <Marker coordinate={address1} title={address1.title || ''}>
               <View>
                 <Image
                   pointerEvents="none"
@@ -242,7 +252,7 @@ class HomePage extends Component {
             </Marker>
           )}
           {address2 && address2.latitude && (
-            <Marker coordinate={address2} title={'a2'} description={'b2'}>
+            <Marker coordinate={address2} title={address2.title || ''}>
               <View>
                 <Image
                   pointerEvents="none"
@@ -258,7 +268,7 @@ class HomePage extends Component {
         <View style={styles.btnContainer}>
           <TouchableOpacity
             style={styles.nextBtn}
-            onPress={this.deliveryAddress}>
+            onPress={this.selectAddressClick}>
             <Text style={styles.btnSongoh}>Хаягийг сонгох</Text>
           </TouchableOpacity>
         </View>
@@ -282,6 +292,8 @@ class HomePage extends Component {
                 initialValues={{
                   recievePhoneNumber: '',
                   deliveryPhoneNumber: '',
+                  recieveAddress: address2.title,
+                  deliveryAddress: address1.title,
                 }}
                 validationSchema={this.validationScheme}
                 onSubmit={(values, action) =>
@@ -308,11 +320,21 @@ class HomePage extends Component {
                             <Text style={styles.addressTitle1}>
                               Барааг очиж авах хаяг
                             </Text>
-                            <TextInput style={styles.titleFontSize16}>
-                              {address1.title || ''}
-                            </TextInput>
+                            <TextInput
+                              style={styles.titleFontSize16}
+                              onChangeText={handleChange('deliveryAddress')}
+                              onBlur={handleBlur('deliveryAddress')}
+                              defaultValue={values.deliveryAddress}
+                            />
                           </View>
                         </View>
+                        {touched.deliveryAddress && errors.deliveryAddress && (
+                          <View style={styles.marginTop8RowContainerStyle}>
+                            <Text style={styles.errorText}>
+                              {errors.deliveryAddress}
+                            </Text>
+                          </View>
+                        )}
                       </View>
                       <View style={styles.space}>
                         <View style={styles.inputLocationDetails}>
@@ -325,11 +347,21 @@ class HomePage extends Component {
                             <Text style={styles.addressTitle2}>
                               Барааг хүргэж өгөх хаяг
                             </Text>
-                            <TextInput style={styles.titleFontSize16}>
-                              {address2.title || ''}
-                            </TextInput>
+                            <TextInput
+                              style={styles.titleFontSize16}
+                              onChangeText={handleChange('recieveAddress')}
+                              onBlur={handleBlur('recieveAddress')}
+                              defaultValue={values.recieveAddress}
+                            />
                           </View>
                         </View>
+                        {touched.recieveAddress && errors.recieveAddress && (
+                          <View style={styles.marginTop8RowContainerStyle}>
+                            <Text style={styles.errorText}>
+                              {errors.recieveAddress}
+                            </Text>
+                          </View>
+                        )}
                       </View>
                       <View style={styles.space}>
                         <View>
