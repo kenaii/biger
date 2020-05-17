@@ -3,10 +3,16 @@ import {
     StyleSheet, Text, View, Dimensions, TouchableOpacity, TextInput, Image, Button
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
 import SlidingUpPanel from 'rn-sliding-up-panel'
 import axios from 'axios'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { getAddressAsync } from '../../../service/address.service'
+import { getDistance } from 'geolib';
+
+const origin = { latitude: 47.9141627, longitude: 106.9228042 };
+const destination = { latitude: 47.9068943, longitude: 106.9320664 };
+const GOOGLE_MAPS_APIKEY = 'AIzaSyAoFbqPyuDuhNLKJJLRT-RPJ8q52mCc4Vc';
 
 const { height } = Dimensions.get('window')
 
@@ -77,10 +83,18 @@ class HomePage extends Component {
         } else if (address2 && !address2.latitude) {
             this.setState({ address2: { ...address2, ...centerCoordinate }, customMarkerVisible: false }, () => {
                 this._panel.show()
+                this.getDistanceCalculate()
             })
         } else {
             this._panel.show()
+            this.getDistanceCalculate()
         }
+    };
+
+    getDistanceCalculate = () => {
+        const { address1, address2 } = this.state
+        var dis = getDistance(address1, address2);
+        alert(`Distance\n${dis} Meter\nor\n${dis / 1000} KM`);
     };
 
     onChangeRegionComplete = (e) => {
@@ -172,6 +186,11 @@ class HomePage extends Component {
                     // onRegionChange={e => console.log('e', e)}
                     onRegionChangeComplete={this.onChangeRegionComplete}
                 >
+                    <MapViewDirections
+                        origin={origin}
+                        destination={destination}
+                        apikey={GOOGLE_MAPS_APIKEY}
+                    />
                     {address1 && address1.latitude &&
                         <Marker
                             coordinate={address1}
