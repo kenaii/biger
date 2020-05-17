@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
-  Alert,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
@@ -16,8 +15,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { getAddressAsync } from '../../../service/address.service';
 import { getDistance } from 'geolib';
 import * as yup from 'yup';
-import { Formik } from 'formik';
-import { round } from 'react-native-reanimated';
+import {Formik} from 'formik';
 
 const origin = { latitude: 47.9141627, longitude: 106.9228042 };
 const destination = { latitude: 47.9068943, longitude: 106.9320664 };
@@ -113,7 +111,7 @@ class HomePage extends Component {
                   loading: false,
                 },
                 () => {
-                  this.getDistanceCalculate()
+                  this.getDistanceCalculate();
                   this._panel.show();
                 },
               );
@@ -338,6 +336,8 @@ class HomePage extends Component {
                               onChangeText={handleChange('deliveryAddress')}
                               onBlur={handleBlur('deliveryAddress')}
                               defaultValue={values.deliveryAddress}
+                              // textAlignVertical="auto"
+                              // textAlign="left"
                             />
                           </View>
                         </View>
@@ -497,18 +497,9 @@ const styles = StyleSheet.create({
   space: {
     margin: 10,
   },
-  phone: {
-    flex: 1,
-    flexDirection: 'row',
-  },
   txtDesc: {
     color: '#000',
     fontSize: 14,
-    alignSelf: 'stretch',
-  },
-  txtLocDesc: {
-    color: '#000',
-    fontSize: 12,
     alignSelf: 'stretch',
   },
   txtLoc: {

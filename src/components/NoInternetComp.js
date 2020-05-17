@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-const NoInternetComp = (props) => {
+const NoInternetComp = props => {
   const {
     donePress = () => {},
     cancelPress = () => {},
@@ -74,7 +74,7 @@ const NoInternetComp = (props) => {
   );
 };
 
-const ButtonComp = (props) => {
+const ButtonComp = props => {
   const {
     buttonText = '',
     loading = false,
