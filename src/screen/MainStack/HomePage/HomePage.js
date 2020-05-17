@@ -17,6 +17,7 @@ import {getAddressAsync} from '../../../service/address.service';
 import {getDistance} from 'geolib';
 import * as yup from 'yup';
 import {Formik} from 'formik';
+import { round } from 'react-native-reanimated';
 
 const origin = {latitude: 47.9141627, longitude: 106.9228042};
 const destination = {latitude: 47.9068943, longitude: 106.9320664};
@@ -102,6 +103,7 @@ class HomePage extends Component {
                   loading: false,
                 },
                 () => {
+                  this.getDistanceCalculate()
                   this._panel.show();
                 },
               );
@@ -121,7 +123,7 @@ class HomePage extends Component {
   getDistanceCalculate = () => {
     const {address1, address2} = this.state;
     var dis = getDistance(address1, address2);
-    Alert.alert(`Distance\n${dis} Meter\nor\n${dis / 1000} KM`);
+    // Alert.alert(`Distance\n${dis} Meter\nor\n${dis / 1000} KM`);
     this.setState({distance: dis});
   };
 
@@ -181,7 +183,7 @@ class HomePage extends Component {
   };
 
   render() {
-    const {address1 = {}, address2 = {}} = this.state;
+    const {address1 = {}, address2 = {}, distance} = this.state;
     return (
       <View style={styles.container}>
         {address1 && address1.title && (
@@ -372,6 +374,12 @@ class HomePage extends Component {
                               </Text>
                             </View>
                           )}
+                      </View>
+                      <View style={styles.space}>
+                        <Text style={styles.txtDesc}>Хүргэлтийн зай {distance / 1000} км</Text>
+                      </View>
+                      <View style={styles.space}>
+                        <Text style={styles.txtDesc}>Хүргэлтийн төлбөр {Math.round((distance / 1000) * 1000)} төгрөг</Text>
                       </View>
                       <View style={styles.btnContainer}>
                         <TouchableOpacity
