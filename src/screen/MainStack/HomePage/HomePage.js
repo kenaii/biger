@@ -30,15 +30,16 @@ class HomePage extends Component {
     recievePhoneNumber: yup
       .string()
       .trim()
-      .min(8, 'ta bagadaa baix yostoi')
-      .max(8, 'tanii dugaar bagadaa naim baix yostoi‰')
+      .required('boglono vv')
+    //   .min(8, 'ta bagadaa baix yostoi')
+    //   .max(8, 'tanii dugaar bagadaa naim baix yostoi‰')
       .matches(/^\d{8}$/g, 'is not phonenumber'),
     deliveryPhoneNumber: yup
       .string()
       .trim()
       .required('boglono vv')
-      .min(8, 'ta bagadaa baix yostoi')
-      .max(8, 'tanii dugaar bagadaa naim baix yostoi‰')
+    //   .min(8, 'ta bagadaa baix yostoi')
+    //   .max(8, 'tanii dugaar bagadaa naim baix yostoi‰')
       .matches(/^\d{8}$/g, 'is not phonenumber'),
   });
   constructor(props) {
