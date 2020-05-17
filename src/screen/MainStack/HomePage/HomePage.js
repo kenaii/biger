@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
@@ -65,6 +67,10 @@ class HomePage extends Component {
     this.onChangeRegionComplete = this.onChangeRegionComplete.bind(this);
     this.selectAddressClick = this.selectAddressClick.bind(this);
     this.onCheckClick = this.onCheckClick.bind(this);
+  }
+
+  componentDidMount() {
+    if (Platform.OS === 'android') this.permissatioAndroid();
   }
 
   selectAddressClick = () => {
@@ -190,6 +196,52 @@ class HomePage extends Component {
     navigation.navigate('Order');
   };
 
+  getCurrentLocation = () => {
+    navigator.geolocation.watchPosition(
+      position => {
+        let region = {
+          latitude: parseFloat(position.coords.latitude),
+          longitude: parseFloat(position.coords.longitude),
+          latitudeDelta: 5,
+          longitudeDelta: 5,
+        };
+        this.setState({
+          centerCoordinate: region,
+        });
+      },
+      error => console.log(error),
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 2000,
+      },
+    );
+  };
+
+  permissatioAndroid = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: 'Cool Photo App Camera Permission',
+          message:
+            'Cool Photo App needs access to your camera ' +
+            'so you can take awesome pictures.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        // this.getCurrentLocation();
+      } else {
+        console.log('Location permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   render() {
     const {address1 = {}, address2 = {}, distance} = this.state;
     return (
@@ -235,6 +287,8 @@ class HomePage extends Component {
             latitudeDelta: 0.015,
             longitudeDelta: 0.0121,
           }}
+          showsMyLocationButton={true}
+          showsUserLocation={true}
           onRegionChangeComplete={this.onChangeRegionComplete}>
           <MapViewDirections
             origin={origin}
