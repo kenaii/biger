@@ -30,17 +30,17 @@ class HomePage extends Component {
     recievePhoneNumber: yup
       .string()
       .trim()
-      .required('boglono vv')
+      .required('Та утасны дугаарыг заавал оруулна уу!')
     //   .min(8, 'ta bagadaa baix yostoi')
     //   .max(8, 'tanii dugaar bagadaa naim baix yostoi‰')
-      .matches(/^\d{8}$/g, 'is not phonenumber'),
+      .matches(/^\d{8}$/g, 'Утасны дугаарыг зөв оруулна уу!'),
     deliveryPhoneNumber: yup
       .string()
       .trim()
-      .required('boglono vv')
+      .required('Та утасны дугаарыг заавал оруулна уу!')
     //   .min(8, 'ta bagadaa baix yostoi')
     //   .max(8, 'tanii dugaar bagadaa naim baix yostoi‰')
-      .matches(/^\d{8}$/g, 'is not phonenumber'),
+      .matches(/^\d{8}$/g, 'Утасны дугаарыг зөв оруулна уу!'),
   });
   constructor(props) {
     super(props);
@@ -56,6 +56,7 @@ class HomePage extends Component {
       },
       loading: false,
       customMarkerVisible: true,
+      distance: ''
     };
     this.onChangeRegionComplete = this.onChangeRegionComplete.bind(this);
   }
@@ -142,6 +143,7 @@ class HomePage extends Component {
     const {address1, address2} = this.state;
     var dis = getDistance(address1, address2);
     Alert.alert(`Distance\n${dis} Meter\nor\n${dis / 1000} KM`);
+    this.setState({distance: dis});
   };
 
   onChangeRegionComplete = e => {
