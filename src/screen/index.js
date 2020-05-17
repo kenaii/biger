@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import React, {useContext} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
 import MainStack from './MainStack';
 import SplashPage from './SplashPage/SplashPage';
-import { store } from '../store/store';
+import {store} from '../store/store';
 
 const Stack = createStackNavigator();
 
@@ -17,8 +17,8 @@ export default function App() {
           <Stack.Screen name="Splash" component={SplashPage} />
         </Stack.Navigator>
       ) : (
-          <MainStack />
-        )}
+        <MainStack />
+      )}
     </NavigationContainer>
   );
 }

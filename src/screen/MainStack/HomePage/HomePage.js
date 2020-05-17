@@ -327,6 +327,8 @@ class HomePage extends Component {
                               onChangeText={handleChange('deliveryAddress')}
                               onBlur={handleBlur('deliveryAddress')}
                               defaultValue={values.deliveryAddress}
+                              // textAlignVertical="auto"
+                              // textAlign="left"
                             />
                           </View>
                         </View>
