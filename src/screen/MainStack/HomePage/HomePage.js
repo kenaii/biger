@@ -214,7 +214,7 @@ class HomePage extends Component {
                         allowMomentum={false}
                         allowDragging={false}>
                         <View style={styles.panel}>
-                            <KeyboardAwareScrollView style={{ flex: 1 }} enableOnAndroid={true}>
+                            <KeyboardAwareScrollView enableOnAndroid={true}>
                                 <View style={styles.panelHeader}>
                                     <Text style={{ alignSelf: "center", fontSize: 16 }}>ХҮРГЭЛТИЙН МЭДЭЭЛЭЛ</Text>
                                 </View>

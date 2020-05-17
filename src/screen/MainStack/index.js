@@ -9,7 +9,7 @@ function Main() {
     return (
         <Stack.Navigator>
             <Stack.Screen name="Home" component={HomePage} options={{ headerShown: false }} />
-            <Stack.Screen name="Order" component={OrderPage} /> 
+            <Stack.Screen name="Order" component={OrderPage} options={{title: 'Төлбөрийн мэдээлэл'}} /> 
         </Stack.Navigator>
     );
 }
