@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,20 +10,20 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {getAddressAsync} from '../../../service/address.service';
-import {getDistance} from 'geolib';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { getAddressAsync } from '../../../service/address.service';
+import { getDistance } from 'geolib';
 import * as yup from 'yup';
 import {Formik} from 'formik';
 
-const origin = {latitude: 47.9141627, longitude: 106.9228042};
-const destination = {latitude: 47.9068943, longitude: 106.9320664};
+const origin = { latitude: 47.9141627, longitude: 106.9228042 };
+const destination = { latitude: 47.9068943, longitude: 106.9320664 };
 const GOOGLE_MAPS_APIKEY = 'AIzaSyAoFbqPyuDuhNLKJJLRT-RPJ8q52mCc4Vc';
 
-const {height} = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 class HomePage extends Component {
   validationScheme = yup.object().shape({
@@ -40,11 +40,11 @@ class HomePage extends Component {
     recieveAddress: yup
       .string()
       .trim()
-      .required('boglono vv'),
+      .required('Та хаягаа заавал оруулна уу!'),
     deliveryAddress: yup
       .string()
       .trim()
-      .required('boglono vv'),
+      .required('Та хаягаа заавал оруулна уу!'),
   });
 
   constructor(props) {
@@ -61,7 +61,7 @@ class HomePage extends Component {
       },
       loading: false,
       customMarkerVisible: true,
-      distance: '',
+      distance: {},
       imageVisible: true,
     };
     this.onChangeRegionComplete = this.onChangeRegionComplete.bind(this);
@@ -74,8 +74,8 @@ class HomePage extends Component {
   }
 
   selectAddressClick = () => {
-    const {address1 = {}, address2 = {}, centerCoordinate} = this.state;
-    this.setState({loading: true}, () => {
+    const { address1 = {}, address2 = {}, centerCoordinate } = this.state;
+    this.setState({ loading: true }, () => {
       if (!address1.latitude) {
         getAddressAsync(centerCoordinate)
           .then(result => {
@@ -85,18 +85,18 @@ class HomePage extends Component {
               result.results &&
               result.results.length > 0
             ) {
-              const {results} = result;
+              const { results } = result;
               const title = results[0].formatted_address;
               this.setState({
-                address1: {...address1, ...centerCoordinate, title},
-                address2: {...address1, title},
+                address1: { ...address1, ...centerCoordinate, title },
+                address2: { ...address1, title },
                 loading: false,
               });
             }
           })
           .catch(e => {
             console.log('error', e);
-            this.setState({loading: false});
+            this.setState({ loading: false });
           });
       } else if (!address2.latitude) {
         getAddressAsync(centerCoordinate)
@@ -107,11 +107,11 @@ class HomePage extends Component {
               result.results &&
               result.results.length > 0
             ) {
-              const {results} = result;
+              const { results } = result;
               const title = results[0].formatted_address;
               this.setState(
                 {
-                  address2: {...address2, ...centerCoordinate, title},
+                  address2: { ...address2, ...centerCoordinate, title },
                   customMarkerVisible: false,
                   imageVisible: false,
                   loading: false,
@@ -125,24 +125,32 @@ class HomePage extends Component {
           })
           .catch(e => {
             console.log('error', e);
-            this.setState({loading: false});
+            this.setState({ loading: false });
           });
       } else {
-        this.setState({loading: false});
+        this.setState({ loading: false });
         this._panel.show();
       }
     });
   };
 
   getDistanceCalculate = () => {
-    const {address1, address2} = this.state;
+    const { address1, address2 } = this.state;
     var dis = getDistance(address1, address2);
     // Alert.alert(`Distance\n${dis} Meter\nor\n${dis / 1000} KM`);
-    this.setState({distance: dis});
+
+    // {Math.round((distance / 1000) * 1000)} 
+    let price = 3000
+    const distance_km = Math.ceil(dis / 1000)
+    if (distance_km > 1) {
+      price = (distance_km - 1) * 1000 + price  
+    }
+    
+    this.setState({ distance: {distance: dis, distance_km, price } });
   };
 
   onChangeRegionComplete = e => {
-    this.setState({centerCoordinate: e, loading: true}, () => {
+    this.setState({ centerCoordinate: e, loading: true }, () => {
       getAddressAsync(e)
         .then(result => {
           if (
@@ -151,25 +159,25 @@ class HomePage extends Component {
             result.results &&
             result.results.length > 0
           ) {
-            const {results} = result;
+            const { results } = result;
             const title = results[0].formatted_address;
-            const {address1, address2} = this.state;
+            const { address1, address2 } = this.state;
             if (!address1 || !address1.latitude) {
-              this.setState({address1: {title, key: 'add1'}, loading: false});
+              this.setState({ address1: { title, key: 'add1' }, loading: false });
             } else if (!address2 || !address2.latitude) {
-              this.setState({address2: {title, key: 'add2'}, loading: false});
+              this.setState({ address2: { title, key: 'add2' }, loading: false });
             }
           }
         })
         .catch(err => {
-          this.setState({loading: false});
+          this.setState({ loading: false });
           console.warn('err', err);
         });
     });
   };
 
   renderCustomMarker = () => {
-    const {imageVisible, address1 = {}} = this.state;
+    const { imageVisible, address1 = {} } = this.state;
     const imgSource = !address1.latitude
       ? require('../../../../assets/logo_red.jpg')
       : require('../../../../assets/logo_green.jpg');
@@ -191,9 +199,10 @@ class HomePage extends Component {
   };
 
   onCheckClick = (values, action) => {
-    const {navigation} = this.props;
+    const { navigation } = this.props;
+    const { distance } = this.state;
     action.isSubmitting = false;
-    navigation.navigate('Order');
+    navigation.navigate('Order', distance);
   };
 
   getCurrentLocation = () => {
@@ -243,7 +252,7 @@ class HomePage extends Component {
   };
 
   render() {
-    const {address1 = {}, address2 = {}, distance} = this.state;
+    const { address1 = {}, address2 = {}, distance = {}} = this.state;
     return (
       <View style={styles.container}>
         {address1 && address1.title && (
@@ -332,38 +341,38 @@ class HomePage extends Component {
         <SlidingUpPanel
           ref={c => (this._panel = c)}
           height={height * 0.8}
-          draggableRange={{top: height * 0.8, bottom: 0}}
+          draggableRange={{ top: height * 0.8, bottom: 0 }}
           animatedValue={this._draggedValue}
           showBackdrop={true}
           backdropOpacity={0.5}
           allowMomentum={false}
           allowDragging={false}>
-          <View style={styles.panel}>
-            <KeyboardAwareScrollView enableOnAndroid={true}>
-              <View style={styles.panelHeader}>
-                <Text style={styles.sliderTitle}>ХҮРГЭЛТИЙН МЭДЭЭЛЭЛ</Text>
-              </View>
-              <Formik
-                enableReinitialize
-                initialValues={{
-                  recievePhoneNumber: '',
-                  deliveryPhoneNumber: '',
-                  recieveAddress: address2.title,
-                  deliveryAddress: address1.title,
-                }}
-                validationSchema={this.validationScheme}
-                onSubmit={(values, action) =>
-                  this.onCheckClick(values, action)
-                }>
-                {formikProps => {
-                  const {
-                    values,
-                    touched,
-                    errors,
-                    handleChange = () => {},
-                    handleBlur = () => {},
-                  } = formikProps;
-                  return (
+          <Formik
+            enableReinitialize
+            initialValues={{
+              recievePhoneNumber: '',
+              deliveryPhoneNumber: '',
+              recieveAddress: address2.title,
+              deliveryAddress: address1.title,
+            }}
+            validationSchema={this.validationScheme}
+            onSubmit={(values, action) =>
+              this.onCheckClick(values, action)
+            } style={{ flex: 1 }}>
+            {formikProps => {
+              const {
+                values,
+                touched,
+                errors,
+                handleChange = () => { },
+                handleBlur = () => { },
+              } = formikProps;
+              return (
+                <View style={styles.panel}>
+                  <KeyboardAwareScrollView enableOnAndroid={true}>
+                    <View style={styles.panelHeader}>
+                      <Text style={styles.sliderTitle}>ХҮРГЭЛТИЙН МЭДЭЭЛЭЛ</Text>
+                    </View>
                     <View style={styles.panelContainer}>
                       <View style={styles.margin10}>
                         <View style={styles.inputLocationDetails}>
@@ -431,6 +440,7 @@ class HomePage extends Component {
                             onChangeText={handleChange('deliveryPhoneNumber')}
                             onBlur={handleBlur('deliveryPhoneNumber')}
                             defaultValue={values.deliveryPhoneNumber}
+                            placeholder={'88001122'}
                           />
                           {touched.deliveryPhoneNumber &&
                             errors.deliveryPhoneNumber && (
@@ -451,6 +461,7 @@ class HomePage extends Component {
                           onChangeText={handleChange('recievePhoneNumber')}
                           onBlur={handleBlur('recievePhoneNumber')}
                           defaultValue={values.recievePhoneNumber}
+                          placeholder={'99001122'}
                         />
                         {touched.recievePhoneNumber &&
                           errors.recievePhoneNumber && (
@@ -462,29 +473,25 @@ class HomePage extends Component {
                           )}
                       </View>
                       <View style={styles.space}>
-                        <Text style={styles.txtDesc}>
-                          Хүргэлтийн зай {distance / 1000} км
-                        </Text>
+                        <Text style={styles.txtDesc}>Хүргэлтийн зай {distance.distance_km} км</Text>
                       </View>
                       <View style={styles.space}>
-                        <Text style={styles.txtDesc}>
-                          Хүргэлтийн төлбөр{' '}
-                          {Math.round((distance / 1000) * 1000)} төгрөг
-                        </Text>
-                      </View>
-                      <View style={styles.btnContainer}>
-                        <TouchableOpacity
-                          style={styles.btn}
-                          onPress={formikProps.handleSubmit}>
-                          <Text style={styles.btnSongoh}>Баталгаажуулах</Text>
-                        </TouchableOpacity>
+                        <Text style={styles.txtDesc}>Хүргэлтийн төлбөр {distance.price} төгрөг</Text>
                       </View>
                     </View>
-                  );
-                }}
-              </Formik>
-            </KeyboardAwareScrollView>
-          </View>
+                  </KeyboardAwareScrollView>
+
+                  <View style={styles.btnContainer}>
+                    <TouchableOpacity
+                      style={styles.btn}
+                      onPress={formikProps.handleSubmit}>
+                      <Text style={styles.btnSongoh}>Баталгаажуулах</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              );
+            }}
+          </Formik>
         </SlidingUpPanel>
       </View>
     );
@@ -516,37 +523,36 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     alignItems: 'stretch',
-    padding: 10,
-  },
-  btn: {
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'stretch',
-    height: 50,
-    backgroundColor: '#162a69',
-    borderRadius: 15,
+    padding: 10
   },
   btnContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    marginBottom: 10,
+    marginBottom: 10
   },
-  nextBtn: {
-    borderWidth: 1,
+  btn: {
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'stretch',
     height: 50,
     backgroundColor: '#162a69',
     borderRadius: 15,
-    margin: 10,
+    margin: 10
+  },
+  nextBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'stretch',
+    height: 50,
+    backgroundColor: '#162a69',
+    borderRadius: 15,
+    margin: 10
   },
   space: {
     margin: 10,
   },
   txtDesc: {
-    color: '#b3b3b3',
+    color: '#000',
     fontSize: 14,
     alignSelf: 'stretch',
   },
@@ -599,7 +605,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  markerImage: {width: 30, height: 30, borderRadius: 15},
+  markerImage: { width: 30, height: 30, borderRadius: 15 },
   addressInfo: {
     height: 30,
     width: 1,
@@ -607,26 +613,29 @@ const styles = StyleSheet.create({
     marginBottom: 3,
     backgroundColor: '#e3e3e3',
   },
-  addressTitle1: {color: '#eb4034', fontSize: 12, alignSelf: 'stretch'},
-  addressTitle2: {color: '#3fc450', fontSize: 12, alignSelf: 'stretch'},
-  marginLeft8: {flex: 1, marginLeft: 8},
-  btnSongoh: {color: '#fff', fontSize: 20},
-  margin10: {marginLeft: 10, marginRight: 10, marginBottom: 10},
-  titleFontSize16: {fontSize: 16, padding: 0},
+  addressTitle1: { color: '#eb4034', fontSize: 12, alignSelf: 'stretch' },
+  addressTitle2: { color: '#3fc450', fontSize: 12, alignSelf: 'stretch' },
+  marginLeft8: { flex: 1, marginLeft: 8 },
+  btnSongoh: { color: '#fff', fontSize: 20 },
+  margin10: { marginLeft: 10, marginRight: 10, marginBottom: 10 },
+  titleFontSize16: { fontSize: 16, padding: 0 },
   phoneText: {
     height: 40,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#e3e3e3',
   },
-  sliderTitle: {alignSelf: 'center', fontSize: 16},
+  sliderTitle: {
+    alignSelf: 'center',
+    fontSize: 16
+  },
   marginTop8RowContainerStyle: {
     flexDirection: 'row',
     marginTop: 8,
     // flex: 1
   },
   errorText: {
-    color: '#D32F2F',
+    color: 'orange',
     fontSize: 13,
     marginTop: 3,
     marginLeft: 7,
