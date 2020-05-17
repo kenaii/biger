@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
-  Alert,
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
@@ -17,7 +16,6 @@ import {getAddressAsync} from '../../../service/address.service';
 import {getDistance} from 'geolib';
 import * as yup from 'yup';
 import {Formik} from 'formik';
-import { round } from 'react-native-reanimated';
 
 const origin = {latitude: 47.9141627, longitude: 106.9228042};
 const destination = {latitude: 47.9068943, longitude: 106.9320664};
@@ -113,7 +111,7 @@ class HomePage extends Component {
                   loading: false,
                 },
                 () => {
-                  this.getDistanceCalculate()
+                  this.getDistanceCalculate();
                   this._panel.show();
                 },
               );
@@ -408,10 +406,15 @@ class HomePage extends Component {
                           )}
                       </View>
                       <View style={styles.space}>
-                        <Text style={styles.txtDesc}>Хүргэлтийн зай {distance / 1000} км</Text>
+                        <Text style={styles.txtDesc}>
+                          Хүргэлтийн зай {distance / 1000} км
+                        </Text>
                       </View>
                       <View style={styles.space}>
-                        <Text style={styles.txtDesc}>Хүргэлтийн төлбөр {Math.round((distance / 1000) * 1000)} төгрөг</Text>
+                        <Text style={styles.txtDesc}>
+                          Хүргэлтийн төлбөр{' '}
+                          {Math.round((distance / 1000) * 1000)} төгрөг
+                        </Text>
                       </View>
                       <View style={styles.btnContainer}>
                         <TouchableOpacity
@@ -453,17 +456,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  favoriteIcon: {
-    position: 'absolute',
-    top: -24,
-    right: 24,
-    backgroundColor: '#2b8a3e',
-    width: 48,
-    height: 48,
-    padding: 8,
-    borderRadius: 24,
-    zIndex: 1,
-  },
   panelContainer: {
     flex: 1,
     flexDirection: 'column',
@@ -497,18 +489,9 @@ const styles = StyleSheet.create({
   space: {
     margin: 10,
   },
-  phone: {
-    flex: 1,
-    flexDirection: 'row',
-  },
   txtDesc: {
     color: '#b3b3b3',
     fontSize: 14,
-    alignSelf: 'stretch',
-  },
-  txtLocDesc: {
-    color: '#000',
-    fontSize: 12,
     alignSelf: 'stretch',
   },
   txtLoc: {
