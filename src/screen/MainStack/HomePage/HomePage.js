@@ -16,6 +16,8 @@ import SlidingUpPanel from 'rn-sliding-up-panel';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {getAddressAsync} from '../../../service/address.service';
 import {getDistance} from 'geolib';
+import * as yup from 'yup';
+import {Formik} from 'formik';
 
 const origin = {latitude: 47.9141627, longitude: 106.9228042};
 const destination = {latitude: 47.9068943, longitude: 106.9320664};
@@ -24,6 +26,21 @@ const GOOGLE_MAPS_APIKEY = 'AIzaSyAoFbqPyuDuhNLKJJLRT-RPJ8q52mCc4Vc';
 const {height} = Dimensions.get('window');
 
 class HomePage extends Component {
+  validationScheme = yup.object().shape({
+    recievePhoneNumber: yup
+      .string()
+      .trim()
+      .min(8, 'ta bagadaa baix yostoi')
+      .max(8, 'tanii dugaar bagadaa naim baix yostoi‰')
+      .matches(/^\d{8}$/g, 'is not phonenumber'),
+    deliveryPhoneNumber: yup
+      .string()
+      .trim()
+      .required('boglono vv')
+      .min(8, 'ta bagadaa baix yostoi')
+      .max(8, 'tanii dugaar bagadaa naim baix yostoi‰')
+      .matches(/^\d{8}$/g, 'is not phonenumber'),
+  });
   constructor(props) {
     super(props);
 
@@ -171,6 +188,13 @@ class HomePage extends Component {
     );
   };
 
+  onCheckClick = (values, action) => {
+    console.log('onCheckClick', values);
+    const {navigation} = this.props;
+    action.isSubmitting = false;
+    navigation.navigate('Order');
+  };
+
   render() {
     const {address1, address2} = this.state;
     return (
@@ -271,64 +295,112 @@ class HomePage extends Component {
                 <View style={styles.panelHeader}>
                   <Text style={styles.sliderTitle}>ХҮРГЭЛТИЙН МЭДЭЭЛЭЛ</Text>
                 </View>
-
-                <View style={styles.panelContainer}>
-                  <View style={styles.margin10}>
-                    <View style={styles.inputLocationDetails}>
-                      <Image
-                        style={styles.pickLogo}
-                        source={require('../../../../assets/logo_red.jpg')}
-                      />
-                      <View style={styles.addressInfo} />
-                      <View style={styles.marginLeft8}>
-                        <Text style={styles.addressTitle1}>
-                          Барааг очиж авах хаяг
-                        </Text>
-                        <TextInput style={styles.titleFontSize16}>
-                          {address1.title || ''}
-                        </TextInput>
+                <Formik
+                  enableReinitialize
+                  initialValues={{
+                    recievePhoneNumber: '',
+                    deliveryPhoneNumber: '',
+                  }}
+                  validationSchema={this.validationScheme}
+                  onSubmit={(values, action) =>
+                    this.onCheckClick(values, action)
+                  }>
+                  {formikProps => {
+                    const {
+                      values,
+                      touched,
+                      errors,
+                      handleChange = () => {},
+                      handleBlur = () => {},
+                    } = formikProps;
+                    return (
+                      <View style={styles.panelContainer}>
+                        <View style={styles.margin10}>
+                          <View style={styles.inputLocationDetails}>
+                            <Image
+                              style={styles.pickLogo}
+                              source={require('../../../../assets/logo_red.jpg')}
+                            />
+                            <View style={styles.addressInfo} />
+                            <View style={styles.marginLeft8}>
+                              <Text style={styles.addressTitle1}>
+                                Барааг очиж авах хаяг
+                              </Text>
+                              <TextInput style={styles.titleFontSize16}>
+                                {address1.title || ''}
+                              </TextInput>
+                            </View>
+                          </View>
+                        </View>
+                        <View style={styles.space}>
+                          <View style={styles.inputLocationDetails}>
+                            <Image
+                              style={styles.pickLogo}
+                              source={require('../../../../assets/logo_green.jpg')}
+                            />
+                            <View style={styles.addressInfo} />
+                            <View style={styles.marginLeft8}>
+                              <Text style={styles.addressTitle2}>
+                                Барааг хүргэж өгөх хаяг
+                              </Text>
+                              <TextInput style={styles.titleFontSize16}>
+                                {address2.title || ''}
+                              </TextInput>
+                            </View>
+                          </View>
+                        </View>
+                        <View style={styles.space}>
+                          <View>
+                            <Text style={styles.txtDesc}>
+                              Барааг өгөх хүний утасны дугаар
+                            </Text>
+                            <TextInput
+                              style={styles.phoneText}
+                              onChangeText={handleChange('deliveryPhoneNumber')}
+                              onBlur={handleBlur('deliveryPhoneNumber')}
+                              defaultValue={values.deliveryPhoneNumber}
+                            />
+                            {touched.deliveryPhoneNumber &&
+                              errors.deliveryPhoneNumber && (
+                                <View
+                                  style={styles.marginTop8RowContainerStyle}>
+                                  <Text style={styles.errorText}>
+                                    {errors.deliveryPhoneNumber}
+                                  </Text>
+                                </View>
+                              )}
+                          </View>
+                        </View>
+                        <View style={styles.space}>
+                          <Text style={styles.txtDesc}>
+                            Барааг хүлээн авах хүний утасны дугаар
+                          </Text>
+                          <TextInput
+                            style={styles.phoneText}
+                            onChangeText={handleChange('recievePhoneNumber')}
+                            onBlur={handleBlur('recievePhoneNumber')}
+                            defaultValue={values.recievePhoneNumber}
+                          />
+                          {touched.recievePhoneNumber &&
+                            errors.recievePhoneNumber && (
+                              <View style={styles.marginTop8RowContainerStyle}>
+                                <Text style={styles.errorText}>
+                                  {errors.recievePhoneNumber}
+                                </Text>
+                              </View>
+                            )}
+                        </View>
+                        <View style={styles.btnContainer}>
+                          <TouchableOpacity
+                            style={styles.btn}
+                            onPress={formikProps.handleSubmit}>
+                            <Text style={styles.btnSongoh}>Баталгаажуулах</Text>
+                          </TouchableOpacity>
+                        </View>
                       </View>
-                    </View>
-                  </View>
-                  <View style={styles.space}>
-                    <View style={styles.inputLocationDetails}>
-                      <Image
-                        style={styles.pickLogo}
-                        source={require('../../../../assets/logo_green.jpg')}
-                      />
-                      <View style={styles.addressInfo} />
-                      <View style={styles.marginLeft8}>
-                        <Text style={styles.addressTitle2}>
-                          Барааг хүргэж өгөх хаяг
-                        </Text>
-                        <TextInput style={styles.titleFontSize16}>
-                          {address2.title || ''}
-                        </TextInput>
-                      </View>
-                    </View>
-                  </View>
-                  <View style={styles.space}>
-                    <View>
-                      <Text style={styles.txtDesc}>
-                        Барааг өгөх хүний утасны дугаар
-                      </Text>
-                      <TextInput style={styles.phoneText} />
-                    </View>
-                  </View>
-                  <View style={styles.space}>
-                    <Text style={styles.txtDesc}>
-                      Барааг хүлээн авах хүний утасны дугаар
-                    </Text>
-                    <TextInput style={styles.phoneText} />
-                  </View>
-                  <View style={styles.btnContainer}>
-                    <TouchableOpacity
-                      style={styles.btn}
-                      onPress={() => this.props.navigation.navigate('Order')}>
-                      <Text style={styles.btnSongoh}>Баталгаажуулах</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
+                    );
+                  }}
+                </Formik>
               </KeyboardAwareScrollView>
             </View>
           </SlidingUpPanel>
@@ -487,6 +559,18 @@ const styles = StyleSheet.create({
     borderColor: '#e3e3e3',
   },
   sliderTitle: {alignSelf: 'center', fontSize: 16},
+  marginTop8RowContainerStyle: {
+    flexDirection: 'row',
+    marginTop: 8,
+    // flex: 1
+  },
+  errorText: {
+    color: '#D32F2F',
+    fontSize: 13,
+    marginTop: 3,
+    marginLeft: 7,
+    flex: 1,
+  },
 });
 
 export default HomePage;
