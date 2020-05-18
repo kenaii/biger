@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,16 +9,17 @@ import {
   Image,
   PermissionsAndroid,
   Platform,
+  Alert,
 } from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import SlidingUpPanel from 'rn-sliding-up-panel';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {getAddressAsync} from '../../../service/address.service';
-import {getDistance} from 'geolib';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { getAddressAsync } from '../../../service/address.service';
+import { getDistance } from 'geolib';
 import * as yup from 'yup';
-import {Formik} from 'formik';
+import { Formik } from 'formik';
 
-const {height} = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 class HomePage extends Component {
   validationScheme = yup.object().shape({
@@ -60,19 +61,20 @@ class HomePage extends Component {
       imageVisible: true,
     };
     this.onChangeRegionComplete = this.onChangeRegionComplete.bind(this);
-    this.selectAddressClick = this.selectAddressClick.bind(this);
+    this.selectAddressClick = this.selectAddressClick.bind(this);   
     this.onCheckClick = this.onCheckClick.bind(this);
   }
 
   componentDidMount() {
     if (Platform.OS === 'android') {
       this.permissatioAndroid();
+      this._map.setMapBoundaries({ latitude: 48.225648, longitude: 105.987859 }, { latitude: 47.565081, longitude: 107.724928 })
     }
   }
 
   selectAddressClick = () => {
-    const {address1 = {}, address2 = {}, centerCoordinate} = this.state;
-    this.setState({loading: true}, () => {
+    const { address1 = {}, address2 = {}, centerCoordinate } = this.state;
+    this.setState({ loading: true }, () => {
       if (!address1.latitude) {
         getAddressAsync(centerCoordinate)
           .then(result => {
@@ -82,18 +84,18 @@ class HomePage extends Component {
               result.results &&
               result.results.length > 0
             ) {
-              const {results} = result;
+              const { results } = result;
               const title = results[0].formatted_address;
               this.setState({
-                address1: {...address1, ...centerCoordinate, title},
-                address2: {...address1, title},
+                address1: { ...address1, ...centerCoordinate, title },
+                address2: { ...address1, title },
                 loading: false,
               });
             }
           })
           .catch(e => {
             console.log('error', e);
-            this.setState({loading: false});
+            this.setState({ loading: false });
           });
       } else if (!address2.latitude) {
         getAddressAsync(centerCoordinate)
@@ -104,50 +106,59 @@ class HomePage extends Component {
               result.results &&
               result.results.length > 0
             ) {
-              const {results} = result;
+              const { results } = result;
               const title = results[0].formatted_address;
               this.setState(
                 {
-                  address2: {...address2, ...centerCoordinate, title},
+                  address2: { ...address2, ...centerCoordinate, title },
                   customMarkerVisible: false,
                   imageVisible: false,
                   loading: false,
                 },
                 () => {
-                  this.getDistanceCalculate();
-                  this._panel.show();
+                  if (this.getDistanceCalculate()) {
+                    this._panel.show();
+                  }
                 },
               );
             }
           })
           .catch(e => {
             console.log('error', e);
-            this.setState({loading: false});
+            this.setState({ loading: false });
           });
       } else {
-        this.setState({loading: false});
+        this.setState({ loading: false });
         this._panel.show();
       }
     });
   };
 
   getDistanceCalculate = () => {
-    const {address1, address2} = this.state;
+    const { address1, address2 } = this.state;
     var dis = getDistance(address1, address2);
-    // Alert.alert(`Distance\n${dis} Meter\nor\n${dis / 1000} KM`);
-
-    // {Math.round((distance / 1000) * 1000)}
-    let price = 3000;
+    let price = 5000;
     const distance_km = Math.ceil(dis / 1000);
-    if (distance_km > 1) {
-      price = (distance_km - 1) * 1000 + price;
+    if (distance_km > 5) { 
+      price += (distance_km - 5) * 500;
+    } else if (distance_km > 40) {
+      Alert.alert(
+        "Уучлаарай",
+        "40км ээс дээш зайд хүргэлт хийх боломжгүй",
+        [
+          { text: "OK", onPress: () => console.log("OK Pressed") }
+        ],
+        { cancelable: true }
+      );
+      return false;
     }
 
-    this.setState({distance: {distance: dis, distance_km, price}});
+    this.setState({ distance: { distance: dis, distance_km, price } });
+    return true;
   };
 
   onChangeRegionComplete = e => {
-    this.setState({centerCoordinate: e, loading: true}, () => {
+    this.setState({ centerCoordinate: e, loading: true }, () => {
       getAddressAsync(e)
         .then(result => {
           if (
@@ -156,25 +167,25 @@ class HomePage extends Component {
             result.results &&
             result.results.length > 0
           ) {
-            const {results} = result;
+            const { results } = result;
             const title = results[0].formatted_address;
-            const {address1, address2} = this.state;
+            const { address1, address2 } = this.state;
             if (!address1 || !address1.latitude) {
-              this.setState({address1: {title, key: 'add1'}, loading: false});
+              this.setState({ address1: { title, key: 'add1' }, loading: false });
             } else if (!address2 || !address2.latitude) {
-              this.setState({address2: {title, key: 'add2'}, loading: false});
+              this.setState({ address2: { title, key: 'add2' }, loading: false });
             }
           }
         })
         .catch(err => {
-          this.setState({loading: false});
+          this.setState({ loading: false });
           console.warn('err', err);
         });
     });
   };
 
   renderCustomMarker = () => {
-    const {imageVisible, address1 = {}} = this.state;
+    const { imageVisible, address1 = {} } = this.state;
     const imgSource = !address1.latitude
       ? require('../../../../assets/logo_red.jpg')
       : require('../../../../assets/logo_green.jpg');
@@ -196,8 +207,8 @@ class HomePage extends Component {
   };
 
   onCheckClick = (values, action) => {
-    const {navigation} = this.props;
-    const {distance} = this.state;
+    const { navigation } = this.props;
+    const { distance } = this.state;
     action.isSubmitting = false;
     navigation.navigate('Order', distance);
   };
@@ -227,7 +238,7 @@ class HomePage extends Component {
   };
 
   render() {
-    const {address1 = {}, address2 = {}, distance = {}} = this.state;
+    const { address1 = {}, address2 = {}, distance = {} } = this.state;
     return (
       <View style={styles.container}>
         {address1 && address1.title && (
@@ -264,6 +275,7 @@ class HomePage extends Component {
         {this.renderCustomMarker()}
 
         <MapView
+          ref={(ref) => this._map = ref}
           style={styles.mapStyle}
           initialRegion={{
             latitude: 47.9169351,
@@ -307,14 +319,14 @@ class HomePage extends Component {
           <TouchableOpacity
             style={styles.nextBtn}
             onPress={this.selectAddressClick}>
-            <Text style={styles.btnSongoh}>Хаягийг сонгох</Text>
+            <Text style={styles.btnSongoh}>Хаяг сонгох</Text>
           </TouchableOpacity>
         </View>
 
         <SlidingUpPanel
           ref={c => (this._panel = c)}
           height={height * 0.8}
-          draggableRange={{top: height * 0.8, bottom: 0}}
+          draggableRange={{ top: height * 0.8, bottom: 0 }}
           animatedValue={this._draggedValue}
           showBackdrop={true}
           backdropOpacity={0.5}
@@ -330,14 +342,14 @@ class HomePage extends Component {
             }}
             validationSchema={this.validationScheme}
             onSubmit={(values, action) => this.onCheckClick(values, action)}
-            style={{flex: 1}}>
+            style={{ flex: 1 }}>
             {formikProps => {
               const {
                 values,
                 touched,
                 errors,
-                handleChange = () => {},
-                handleBlur = () => {},
+                handleChange = () => { },
+                handleBlur = () => { },
               } = formikProps;
               return (
                 <View style={styles.panel}>
@@ -364,8 +376,8 @@ class HomePage extends Component {
                               onChangeText={handleChange('deliveryAddress')}
                               onBlur={handleBlur('deliveryAddress')}
                               defaultValue={values.deliveryAddress}
-                              // textAlignVertical="auto"
-                              // textAlign="left"
+                            // textAlignVertical="auto"
+                            // textAlign="left"
                             />
                           </View>
                         </View>
@@ -583,7 +595,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  markerImage: {width: 30, height: 30, borderRadius: 15},
+  markerImage: { width: 30, height: 30, borderRadius: 15 },
   addressInfo: {
     height: 30,
     width: 1,
@@ -591,12 +603,12 @@ const styles = StyleSheet.create({
     marginBottom: 3,
     backgroundColor: '#e3e3e3',
   },
-  addressTitle1: {color: '#eb4034', fontSize: 12, alignSelf: 'stretch'},
-  addressTitle2: {color: '#3fc450', fontSize: 12, alignSelf: 'stretch'},
-  marginLeft8: {flex: 1, marginLeft: 8},
-  btnSongoh: {color: '#fff', fontSize: 20},
-  margin10: {marginLeft: 10, marginRight: 10, marginBottom: 10},
-  titleFontSize16: {fontSize: 16, padding: 0},
+  addressTitle1: { color: '#eb4034', fontSize: 12, alignSelf: 'stretch' },
+  addressTitle2: { color: '#3fc450', fontSize: 12, alignSelf: 'stretch' },
+  marginLeft8: { flex: 1, marginLeft: 8 },
+  btnSongoh: { color: '#fff', fontSize: 20 },
+  margin10: { marginLeft: 10, marginRight: 10, marginBottom: 10 },
+  titleFontSize16: { fontSize: 16, padding: 0 },
   phoneText: {
     height: 40,
     borderRadius: 10,

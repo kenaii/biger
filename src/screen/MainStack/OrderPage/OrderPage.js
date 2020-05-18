@@ -72,7 +72,7 @@ const OrderPage = ({route: {params: distance = {}} = {}}) => {
             <Text>Данс эзэмшигчийн нэр</Text>
           </View>
           <View style={{flex: 1, margin: 10}}>
-            <Text style={{textAlign: 'right'}}>Баасанбат</Text>
+            <Text style={{textAlign: 'right'}}>О.Баасанбат</Text>
           </View>
         </View>
       </View>
