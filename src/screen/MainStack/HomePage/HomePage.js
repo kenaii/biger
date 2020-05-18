@@ -61,7 +61,7 @@ class HomePage extends Component {
       imageVisible: true,
     };
     this.onChangeRegionComplete = this.onChangeRegionComplete.bind(this);
-    this.selectAddressClick = this.selectAddressClick.bind(this);   
+    this.selectAddressClick = this.selectAddressClick.bind(this);
     this.onCheckClick = this.onCheckClick.bind(this);
   }
 
@@ -139,7 +139,7 @@ class HomePage extends Component {
     var dis = getDistance(address1, address2);
     let price = 5000;
     const distance_km = Math.ceil(dis / 1000);
-    if (distance_km > 5) { 
+    if (distance_km > 5) {
       price += (distance_km - 5) * 500;
     } else if (distance_km > 40) {
       Alert.alert(
@@ -316,6 +316,17 @@ class HomePage extends Component {
         </MapView>
 
         <View style={styles.btnContainer}>
+          <TouchableOpacity
+            style={styles.callBtn}>
+            <Image
+              style={{
+                width: 20,
+                height: 20
+              }}
+              source={require('../../../../assets/celular.png')}
+            />
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.nextBtn}
             onPress={this.selectAddressClick}>
@@ -538,6 +549,15 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     margin: 10,
   },
+  callBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 40,
+    height: 40,
+    backgroundColor: '#fff',
+    borderRadius: 50,
+    margin: 10,
+  },
   space: {
     margin: 10,
   },
@@ -606,7 +626,7 @@ const styles = StyleSheet.create({
   addressTitle1: { color: '#eb4034', fontSize: 12, alignSelf: 'stretch' },
   addressTitle2: { color: '#3fc450', fontSize: 12, alignSelf: 'stretch' },
   marginLeft8: { flex: 1, marginLeft: 8 },
-  btnSongoh: { color: '#fff', fontSize: 20 },
+  btnSongoh: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
   margin10: { marginLeft: 10, marginRight: 10, marginBottom: 10 },
   titleFontSize16: { fontSize: 16, padding: 0 },
   phoneText: {
