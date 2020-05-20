@@ -10,8 +10,9 @@ import {
   PermissionsAndroid,
   Platform,
   Alert,
+  Linking,
 } from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, {Marker, Camera} from 'react-native-maps';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {getAddressAsync} from '../../../service/address.service';
@@ -21,7 +22,6 @@ import Geolocation from '@react-native-community/geolocation';
 import {Formik} from 'formik';
 
 const {height} = Dimensions.get('window');
-
 class HomePage extends Component {
   validationScheme = yup.object().shape({
     recievePhoneNumber: yup
@@ -63,7 +63,6 @@ class HomePage extends Component {
         longitudeDelta: 0.0121,
       },
       loading: false,
-      customMarkerVisible: true,
       distance: {},
       imageVisible: true,
     };
@@ -96,11 +95,26 @@ class HomePage extends Component {
             ) {
               const {results} = result;
               const title = results[0].formatted_address;
-              this.setState({
-                address1: {...address1, ...centerCoordinate, title},
-                address2: {...address1, title},
-                loading: false,
-              });
+              if (address2 && address2.latitude) {
+                this.setState(
+                  {
+                    address1: {...address1, ...centerCoordinate, title},
+                    loading: false,
+                    imageVisible: false,
+                  },
+                  () => {
+                    if (this.getDistanceCalculate()) {
+                      this._panel.show();
+                    }
+                  },
+                );
+              } else {
+                this.setState({
+                  address1: {...address1, ...centerCoordinate, title},
+                  address2: {...address1, title},
+                  loading: false,
+                });
+              }
             }
           })
           .catch(e => {
@@ -121,7 +135,6 @@ class HomePage extends Component {
               this.setState(
                 {
                   address2: {...address2, ...centerCoordinate, title},
-                  customMarkerVisible: false,
                   imageVisible: false,
                   loading: false,
                 },
@@ -254,14 +267,7 @@ class HomePage extends Component {
         const {
           coords: {latitude, longitude},
         } = data;
-        this.setState({
-          currentCoordinate: {
-            latitude: latitude,
-            longitude: longitude,
-            latitudeDelta: 0.015,
-            longitudeDelta: 0.0121,
-          },
-        });
+        this._map.animateToCoordinate({latitude, longitude}, 1);
       },
       error => {
         console.warn('currentLocationClicked', error);
@@ -274,17 +280,65 @@ class HomePage extends Component {
     );
   };
 
+  phoneClicked = () => {
+    Linking.openURL('tel:99377956');
+  };
+
+  address1Clicked = () => {
+    const {address1 = {}, address2 = {}} = this.state;
+    if (address1.latitude) {
+      if (!address2.latitude) {
+        this.setState({address2: {}});
+      }
+      this.setState(
+        {
+          imageVisible: true,
+          address1: {title: address1.title, key: 'add1'},
+        },
+        () => {
+          this._map.animateToCoordinate(
+            {latitude: address1.latitude, longitude: address1.longitude},
+            1,
+          );
+        },
+      );
+    }
+  };
+
+  address2Clicked = () => {
+    const {address2 = {}, address1 = {}} = this.state;
+    if (address2.latitude) {
+      if (!address1.latitude) {
+        this.setState({address1: {}});
+      }
+      this.setState(
+        {
+          imageVisible: true,
+          address2: {title: address2.title, key: 'add2'},
+        },
+        () => {
+          this._map.animateToCoordinate(
+            {latitude: address2.latitude, longitude: address2.longitude},
+            1,
+          );
+        },
+      );
+    }
+  };
+
   render() {
     const {
       address1 = {},
       address2 = {},
       distance = {},
-      currentCoordinate,
+      centerCoordinate,
     } = this.state;
     return (
       <View style={styles.container}>
         {address1 && address1.title && (
-          <View style={styles.inputLocation}>
+          <TouchableOpacity
+            style={styles.inputLocation}
+            onPress={() => this.address1Clicked()}>
             <Image
               style={styles.pickLogo}
               source={require('../../../../assets/logo_red.png')}
@@ -296,10 +350,12 @@ class HomePage extends Component {
                 {address1.title || ''}
               </Text>
             </View>
-          </View>
+          </TouchableOpacity>
         )}
         {address2 && address2.title && (
-          <View style={styles.inputLocation}>
+          <TouchableOpacity
+            style={styles.inputLocation}
+            onPress={() => this.address2Clicked()}>
             <Image
               style={styles.pickLogo}
               source={require('../../../../assets/logo_green.png')}
@@ -311,7 +367,7 @@ class HomePage extends Component {
                 {address2.title || ''}
               </Text>
             </View>
-          </View>
+          </TouchableOpacity>
         )}
 
         {this.renderCustomMarker()}
@@ -319,13 +375,7 @@ class HomePage extends Component {
         <MapView
           ref={ref => (this._map = ref)}
           style={styles.mapStyle}
-          initialRegion={{
-            latitude: 47.9169351,
-            longitude: 106.921919,
-            latitudeDelta: 0.015,
-            longitudeDelta: 0.0121,
-          }}
-          region={currentCoordinate}
+          initialRegion={centerCoordinate}
           showsMyLocationButton={true}
           showsUserLocation={true}
           zoomControlEnabled={true}
@@ -359,9 +409,7 @@ class HomePage extends Component {
         </MapView>
 
         <View style={styles.btnContainer}>
-          <TouchableOpacity
-            style={styles.callBtn}
-            onPress={this.currentLocationClicked}>
+          <TouchableOpacity style={styles.callBtn} onPress={this.phoneClicked}>
             <Image
               style={{
                 width: 20,
@@ -371,7 +419,9 @@ class HomePage extends Component {
             />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.callBtn}>
+          <TouchableOpacity
+            style={styles.callBtn}
+            onPress={this.currentLocationClicked}>
             <Image
               style={{
                 width: 20,
