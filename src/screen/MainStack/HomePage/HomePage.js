@@ -12,14 +12,14 @@ import {
   Alert,
   Linking,
 } from 'react-native';
-import MapView, {Marker, Camera} from 'react-native-maps';
+import MapView, {Marker} from 'react-native-maps';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {getAddressAsync} from '../../../service/address.service';
 import {getDistance} from 'geolib';
 import * as yup from 'yup';
-import Geolocation from '@react-native-community/geolocation';
 import {Formik} from 'formik';
+import Geolocation from 'react-native-geolocation-service';
 
 const {height} = Dimensions.get('window');
 class HomePage extends Component {
@@ -274,8 +274,8 @@ class HomePage extends Component {
       },
       {
         enableHighAccuracy: true,
-        timeout: 20000,
-        maximumAge: 1000,
+        timeout: 15000,
+        maximumAge: 10000,
       },
     );
   };
