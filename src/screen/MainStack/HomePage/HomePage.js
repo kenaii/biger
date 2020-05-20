@@ -129,7 +129,9 @@ class HomePage extends Component {
           });
       } else {
         this.setState({ loading: false });
-        this._panel.show();
+        if (this.getDistanceCalculate()) {
+          this._panel.show();
+        }
       }
     });
   };
@@ -139,7 +141,7 @@ class HomePage extends Component {
     var dis = getDistance(address1, address2);
     let price = 5000;
     const distance_km = Math.ceil(dis / 1000);
-    if (distance_km > 5) {
+    if (distance_km > 5 && distance_km <= 40) {
       price += (distance_km - 5) * 500;
     } else if (distance_km > 40) {
       Alert.alert(
@@ -502,11 +504,11 @@ class HomePage extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'stretch',
+    alignItems: 'stretch'
   },
   mapStyle: {
     ...StyleSheet.absoluteFillObject,
-    zIndex: -1,
+    zIndex: -1
   },
   panel: {
     flex: 1,
@@ -614,6 +616,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: -50,
   },
   markerImage: { width: 30, height: 30, borderRadius: 15 },
   addressInfo: {
