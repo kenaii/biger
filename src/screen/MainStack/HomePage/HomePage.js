@@ -17,6 +17,7 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {getAddressAsync} from '../../../service/address.service';
 import {getDistance} from 'geolib';
 import * as yup from 'yup';
+import Geolocation from '@react-native-community/geolocation';
 import {Formik} from 'formik';
 
 const {height} = Dimensions.get('window');
@@ -50,6 +51,12 @@ class HomePage extends Component {
       address1: {},
       address2: {},
       centerCoordinate: {
+        latitude: 47.9169351,
+        longitude: 106.921919,
+        latitudeDelta: 0.015,
+        longitudeDelta: 0.0121,
+      },
+      currentCoordinate: {
         latitude: 47.9169351,
         longitude: 106.921919,
         latitudeDelta: 0.015,
@@ -240,8 +247,40 @@ class HomePage extends Component {
     }
   };
 
+  currentLocationClicked = () => {
+    Geolocation.getCurrentPosition(
+      data => {
+        console.log('done', data);
+        const {
+          coords: {latitude, longitude},
+        } = data;
+        this.setState({
+          currentCoordinate: {
+            latitude: latitude,
+            longitude: longitude,
+            latitudeDelta: 0.015,
+            longitudeDelta: 0.0121,
+          },
+        });
+      },
+      error => {
+        console.warn('currentLocationClicked', error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 1000,
+      },
+    );
+  };
+
   render() {
-    const {address1 = {}, address2 = {}, distance = {}} = this.state;
+    const {
+      address1 = {},
+      address2 = {},
+      distance = {},
+      currentCoordinate,
+    } = this.state;
     return (
       <View style={styles.container}>
         {address1 && address1.title && (
@@ -286,6 +325,7 @@ class HomePage extends Component {
             latitudeDelta: 0.015,
             longitudeDelta: 0.0121,
           }}
+          region={currentCoordinate}
           showsMyLocationButton={true}
           showsUserLocation={true}
           zoomControlEnabled={true}
@@ -319,7 +359,9 @@ class HomePage extends Component {
         </MapView>
 
         <View style={styles.btnContainer}>
-          <TouchableOpacity style={styles.callBtn}>
+          <TouchableOpacity
+            style={styles.callBtn}
+            onPress={this.currentLocationClicked}>
             <Image
               style={{
                 width: 20,
