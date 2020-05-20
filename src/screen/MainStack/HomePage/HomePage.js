@@ -210,8 +210,8 @@ class HomePage extends Component {
   renderCustomMarker = () => {
     const {imageVisible, address1 = {}} = this.state;
     const imgSource = !address1.latitude
-      ? require('../../../../assets/logo_red.jpg')
-      : require('../../../../assets/logo_green.jpg');
+      ? require('../../../../assets/logo_red.png')
+      : require('../../../../assets/logo_green.png');
     if (imageVisible) {
       return (
         <View style={styles.customMarker}>
@@ -341,7 +341,7 @@ class HomePage extends Component {
             onPress={() => this.address1Clicked()}>
             <Image
               style={styles.pickLogo}
-              source={require('../../../../assets/logo_red.jpg')}
+              source={require('../../../../assets/logo_red.png')}
             />
             <View style={styles.addressInfo} />
             <View style={styles.marginLeft8}>
@@ -358,7 +358,7 @@ class HomePage extends Component {
             onPress={() => this.address2Clicked()}>
             <Image
               style={styles.pickLogo}
-              source={require('../../../../assets/logo_green.jpg')}
+              source={require('../../../../assets/logo_green.png')}
             />
             <View style={styles.addressInfo} />
             <View style={styles.marginLeft8}>
@@ -387,7 +387,7 @@ class HomePage extends Component {
               <View>
                 <Image
                   pointerEvents="none"
-                  source={require('../../../../assets/logo_red.jpg')}
+                  source={require('../../../../assets/logo_red.png')}
                   style={styles.markerImage}
                 />
                 <View style={styles.rectangle} />
@@ -399,7 +399,7 @@ class HomePage extends Component {
               <View>
                 <Image
                   pointerEvents="none"
-                  source={require('../../../../assets/logo_green.jpg')}
+                  source={require('../../../../assets/logo_green.png')}
                   style={styles.markerImage}
                 />
                 <View style={styles.rectangle} />
@@ -479,7 +479,7 @@ class HomePage extends Component {
                         <View style={styles.inputLocationDetails}>
                           <Image
                             style={styles.pickLogo}
-                            source={require('../../../../assets/logo_red.jpg')}
+                            source={require('../../../../assets/logo_red.png')}
                           />
                           <View style={styles.addressInfo} />
                           <View style={styles.marginLeft8}>
@@ -508,7 +508,7 @@ class HomePage extends Component {
                         <View style={styles.inputLocationDetails}>
                           <Image
                             style={styles.pickLogo}
-                            source={require('../../../../assets/logo_green.jpg')}
+                            source={require('../../../../assets/logo_green.png')}
                           />
                           <View style={styles.addressInfo} />
                           <View style={styles.marginLeft8}>
