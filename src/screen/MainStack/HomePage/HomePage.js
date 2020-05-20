@@ -96,18 +96,18 @@ class HomePage extends Component {
               const {results} = result;
               const title = results[0].formatted_address;
               if (address2 && address2.latitude) {
-                this.setState(
-                  {
-                    address1: {...address1, ...centerCoordinate, title},
-                    loading: false,
-                    imageVisible: false,
-                  },
-                  () => {
-                    if (this.getDistanceCalculate()) {
+                if (this.getDistanceCalculate(centerCoordinate, address2)) {
+                  this.setState(
+                    {
+                      address1: {...address1, ...centerCoordinate, title},
+                      loading: false,
+                      imageVisible: false,
+                    },
+                    () => {
                       this._panel.show();
-                    }
-                  },
-                );
+                    },
+                  );
+                }
               } else {
                 this.setState({
                   address1: {...address1, ...centerCoordinate, title},
@@ -132,18 +132,18 @@ class HomePage extends Component {
             ) {
               const {results} = result;
               const title = results[0].formatted_address;
-              this.setState(
-                {
-                  address2: {...address2, ...centerCoordinate, title},
-                  imageVisible: false,
-                  loading: false,
-                },
-                () => {
-                  if (this.getDistanceCalculate()) {
+              if (this.getDistanceCalculate(centerCoordinate, address1)) {
+                this.setState(
+                  {
+                    address2: {...address2, ...centerCoordinate, title},
+                    imageVisible: false,
+                    loading: false,
+                  },
+                  () => {
                     this._panel.show();
-                  }
-                },
-              );
+                  },
+                );
+              }
             }
           })
           .catch(e => {
@@ -152,16 +152,16 @@ class HomePage extends Component {
           });
       } else {
         this.setState({loading: false});
-        if (this.getDistanceCalculate()) {
+        if (this.getDistanceCalculate(address1, address2)) {
           this._panel.show();
         }
       }
     });
   };
 
-  getDistanceCalculate = () => {
-    const {address1, address2} = this.state;
-    var dis = getDistance(address1, address2);
+  getDistanceCalculate = (location1, location2) => {
+    // const {address1, address2} = this.state;
+    var dis = getDistance(location1, location2);
     let price = 5000;
     const distance_km = Math.ceil(dis / 1000);
     if (distance_km > 5 && distance_km <= 40) {
