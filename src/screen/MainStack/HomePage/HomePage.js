@@ -10,6 +10,7 @@ import {
   PermissionsAndroid,
   Platform,
   Alert,
+  Linking,
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import SlidingUpPanel from 'rn-sliding-up-panel';
@@ -274,6 +275,10 @@ class HomePage extends Component {
     );
   };
 
+  phoneClicked = () => {
+    Linking.openURL('tel:99377956');
+  };
+
   render() {
     const {
       address1 = {},
@@ -359,9 +364,7 @@ class HomePage extends Component {
         </MapView>
 
         <View style={styles.btnContainer}>
-          <TouchableOpacity
-            style={styles.callBtn}
-            onPress={this.currentLocationClicked}>
+          <TouchableOpacity style={styles.callBtn} onPress={this.phoneClicked}>
             <Image
               style={{
                 width: 20,
@@ -371,7 +374,9 @@ class HomePage extends Component {
             />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.callBtn}>
+          <TouchableOpacity
+            style={styles.callBtn}
+            onPress={this.currentLocationClicked}>
             <Image
               style={{
                 width: 20,
