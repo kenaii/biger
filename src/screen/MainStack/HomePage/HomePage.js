@@ -329,6 +329,16 @@ class HomePage extends Component {
             />
           </TouchableOpacity>
 
+          <TouchableOpacity style={styles.callBtn}>
+            <Image
+              style={{
+                width: 20,
+                height: 20,
+              }}
+              source={require('../../../../assets/current_location.png')}
+            />
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.nextBtn}
             onPress={this.selectAddressClick}>
