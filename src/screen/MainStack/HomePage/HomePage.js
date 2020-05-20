@@ -74,11 +74,11 @@ class HomePage extends Component {
   componentDidMount() {
     if (Platform.OS === 'android') {
       this.permissatioAndroid();
-      this._map.setMapBoundaries(
-        {latitude: 48.225648, longitude: 105.987859},
-        {latitude: 47.565081, longitude: 107.724928},
-      );
     }
+    this._map.setMapBoundaries(
+      {latitude: 48.225648, longitude: 105.987859},
+      {latitude: 47.565081, longitude: 107.724928},
+    );
   }
 
   selectAddressClick = () => {
@@ -281,7 +281,7 @@ class HomePage extends Component {
   };
 
   phoneClicked = () => {
-    Linking.openURL('tel:99377956');
+    Linking.openURL('tel:77898877');
   };
 
   address1Clicked = () => {
