@@ -192,11 +192,17 @@ class HomePage extends Component {
           ) {
             const {results} = result;
             const title = results[0].formatted_address;
-            const {address1, address2} = this.state;
-            if (!address1 || !address1.latitude) {
-              this.setState({address1: {title, key: 'add1'}, loading: false});
-            } else if (!address2 || !address2.latitude) {
-              this.setState({address2: {title, key: 'add2'}, loading: false});
+            const {address1 = {}, address2 = {}} = this.state;
+            if (!address1.latitude) {
+              const {onChange = {}} = address1;
+              if (!onChange.latitude && !onChange.longitude) {
+                this.setState({address1: {title, key: 'add1'}, loading: false});
+              }
+            } else if (!address2.latitude) {
+              const {onChange = {}} = address2;
+              if (!onChange.latitude && !onChange.longitude) {
+                this.setState({address2: {title, key: 'add2'}, loading: false});
+              }
             }
           }
         })
@@ -287,18 +293,42 @@ class HomePage extends Component {
   address1Clicked = () => {
     const {address1 = {}, address2 = {}} = this.state;
     if (address1.latitude) {
-      if (!address2.latitude) {
-        this.setState({address2: {}});
+      if (
+        !address2.latitude &&
+        address2.onChange &&
+        address2.onChange.latitude
+      ) {
+        this.setState({
+          address2: {
+            title: address2.title,
+            key: 'add2',
+            latitude: address2.onChange.latitude,
+            longitude: address2.onChange.longitude,
+            onChange: null,
+          },
+        });
       }
       this.setState(
         {
           imageVisible: true,
-          address1: {title: address1.title, key: 'add1'},
+          address1: {
+            title: address1.title,
+            key: 'add1',
+            onChange: {
+              latitude: address1.latitude,
+              longitude: address1.longitude,
+            },
+          },
         },
         () => {
-          this._map.animateToCoordinate(
-            {latitude: address1.latitude, longitude: address1.longitude},
-            1,
+          this._map.animateToRegion(
+            {
+              latitude: address1.latitude,
+              longitude: address1.longitude,
+              latitudeDelta: 0.008,
+              longitudeDelta: 0.008,
+            },
+            350,
           );
         },
       );
@@ -308,18 +338,42 @@ class HomePage extends Component {
   address2Clicked = () => {
     const {address2 = {}, address1 = {}} = this.state;
     if (address2.latitude) {
-      if (!address1.latitude) {
-        this.setState({address1: {}});
+      if (
+        !address1.latitude &&
+        address1.onChange &&
+        address1.onChange.latitude
+      ) {
+        this.setState({
+          address1: {
+            title: address1.title,
+            key: 'add2',
+            latitude: address1.onChange.latitude,
+            longitude: address1.onChange.longitude,
+            onChange: null,
+          },
+        });
       }
       this.setState(
         {
           imageVisible: true,
-          address2: {title: address2.title, key: 'add2'},
+          address2: {
+            title: address2.title,
+            key: 'add2',
+            onChange: {
+              latitude: address2.latitude,
+              longitude: address2.longitude,
+            },
+          },
         },
         () => {
-          this._map.animateToCoordinate(
-            {latitude: address2.latitude, longitude: address2.longitude},
-            1,
+          this._map.animateToRegion(
+            {
+              latitude: address2.latitude,
+              longitude: address2.longitude,
+              latitudeDelta: 0.008,
+              longitudeDelta: 0.008,
+            },
+            350,
           );
         },
       );
