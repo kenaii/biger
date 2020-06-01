@@ -164,8 +164,18 @@ class HomePage extends Component {
 
   getDistanceCalculate = (location1, location2) => {
     // const {address1, address2} = this.state;
-    var dis = getDistance(location1, location2);
+    let dis = getDistance(location1, location2);
     let price = 5000;
+    const distance_meter = dis / 1000;
+    if (distance_meter < 0.2) {
+      Alert.alert(
+        'Уучлаарай',
+        '200м дотор хүргэлт хийх боломжгүй',
+        [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+        {cancelable: true},
+      );
+      return false;
+    }
     const distance_km = Math.ceil(dis / 1000);
     if (distance_km > 5 && distance_km <= 40) {
       price += (distance_km - 5) * 500;
@@ -243,7 +253,8 @@ class HomePage extends Component {
           navigation.navigate('Order', distance);
         });
       } catch (error) {
-        console.warn('onCheckClick', error);
+        const {response: {data: {message} = {}} = {}} = error;
+        console.warn('onCheckClick', message, error);
         this.setState({sendLoading: false});
       }
     });
