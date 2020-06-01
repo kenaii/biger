@@ -69,7 +69,6 @@ class SplashPage extends React.Component {
       const [state, dispatch] = this.context;
       const _version = await getVersionAsync();
       const isUpdate = checkUpdate(_version);
-      console.log('_version', _version, isUpdate);
       if (isUpdate) {
         this.createUpdateAlert();
       } else {

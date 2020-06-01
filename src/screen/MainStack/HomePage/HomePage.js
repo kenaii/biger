@@ -406,7 +406,10 @@ class HomePage extends Component {
         <ActivityIndicatorComp loading={sendLoading} />
         {address1 && address1.title && (
           <TouchableOpacity
-            style={styles.inputLocation}
+            style={[
+              styles.inputLocation,
+              address1.latitude ? null : {backgroundColor: '#c9c9c9'},
+            ]}
             onPress={() => this.address1Clicked()}>
             <Image
               style={styles.pickLogo}
@@ -423,7 +426,10 @@ class HomePage extends Component {
         )}
         {address2 && address2.title && (
           <TouchableOpacity
-            style={styles.inputLocation}
+            style={[
+              styles.inputLocation,
+              address2.latitude ? null : {backgroundColor: '#c9c9c9'},
+            ]}
             onPress={() => this.address2Clicked()}>
             <Image
               style={styles.pickLogo}
