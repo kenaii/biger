@@ -16,10 +16,12 @@ import MapView, {Marker} from 'react-native-maps';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {getAddressAsync} from '../../../service/address.service';
+import {sendMailAsync} from '../../../service/mail.service';
 import {getDistance} from 'geolib';
 import * as yup from 'yup';
 import {Formik} from 'formik';
 import Geolocation from 'react-native-geolocation-service';
+import ActivityIndicatorComp from '../../../components/ActivityIndicatorComp';
 
 const {height} = Dimensions.get('window');
 class HomePage extends Component {
@@ -65,6 +67,7 @@ class HomePage extends Component {
       loading: false,
       distance: {},
       imageVisible: true,
+      sendLoading: false,
     };
     this.onChangeRegionComplete = this.onChangeRegionComplete.bind(this);
     this.selectAddressClick = this.selectAddressClick.bind(this);
@@ -239,7 +242,17 @@ class HomePage extends Component {
     const {navigation} = this.props;
     const {distance} = this.state;
     action.isSubmitting = false;
-    navigation.navigate('Order', distance);
+    this.setState({sendLoading: true}, async () => {
+      try {
+        await sendMailAsync(values);
+        this.setState({sendLoading: false}, () => {
+          navigation.navigate('Order', distance);
+        });
+      } catch (error) {
+        console.warn('onCheckClick', error);
+        this.setState({sendLoading: false});
+      }
+    });
   };
 
   permissatioAndroid = async () => {
@@ -386,9 +399,11 @@ class HomePage extends Component {
       address2 = {},
       distance = {},
       centerCoordinate,
+      sendLoading,
     } = this.state;
     return (
       <View style={styles.container}>
+        <ActivityIndicatorComp loading={sendLoading} />
         {address1 && address1.title && (
           <TouchableOpacity
             style={styles.inputLocation}
