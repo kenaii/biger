@@ -320,6 +320,8 @@ class HomePage extends Component {
             onChange: null,
           },
         });
+      } else if (!address2.latitude && !address2.onChange && address2.title) {
+        this.setState({address2: {}});
       }
       this.setState(
         {
@@ -365,6 +367,8 @@ class HomePage extends Component {
             onChange: null,
           },
         });
+      } else if (!address1.latitude && !address1.onChange && address1.title) {
+        this.setState({address1: {}});
       }
       this.setState(
         {
