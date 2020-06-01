@@ -410,10 +410,7 @@ class HomePage extends Component {
         <ActivityIndicatorComp loading={sendLoading} />
         {address1 && address1.title && (
           <TouchableOpacity
-            style={[
-              styles.inputLocation,
-              address1.latitude ? null : {backgroundColor: '#c9c9c9'},
-            ]}
+            style={styles.inputLocation}
             onPress={() => this.address1Clicked()}>
             <Image
               style={styles.pickLogo}
@@ -421,8 +418,27 @@ class HomePage extends Component {
             />
             <View style={styles.addressInfo} />
             <View style={styles.marginLeft8}>
-              <Text style={styles.addressTitle1}>Барааг очиж авах хаяг</Text>
-              <Text numberOfLines={1} style={styles.txtLoc}>
+              <Text
+                style={[
+                  styles.addressTitle1,
+                  address2.latitude && address1.latitude
+                    ? null
+                    : !address2.latitude && address1.latitude
+                    ? {color: '#e3e3e3'}
+                    : null,
+                ]}>
+                Барааг очиж авах хаяг
+              </Text>
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.txtLoc,
+                  address2.latitude && address1.latitude
+                    ? null
+                    : !address2.latitude && address1.latitude
+                    ? {color: '#e3e3e3'}
+                    : null,
+                ]}>
                 {address1.title || ''}
               </Text>
             </View>
@@ -430,10 +446,7 @@ class HomePage extends Component {
         )}
         {address2 && address2.title && (
           <TouchableOpacity
-            style={[
-              styles.inputLocation,
-              address2.latitude ? null : {backgroundColor: '#c9c9c9'},
-            ]}
+            style={styles.inputLocation}
             onPress={() => this.address2Clicked()}>
             <Image
               style={styles.pickLogo}
@@ -441,8 +454,27 @@ class HomePage extends Component {
             />
             <View style={styles.addressInfo} />
             <View style={styles.marginLeft8}>
-              <Text style={styles.addressTitle2}>Барааг хүргэж өгөх хаяг</Text>
-              <Text numberOfLines={1} style={styles.txtLoc}>
+              <Text
+                style={[
+                  styles.addressTitle2,
+                  address2.latitude && address1.latitude
+                    ? null
+                    : address2.latitude && !address1.latitude
+                    ? {color: '#e3e3e3'}
+                    : null,
+                ]}>
+                Барааг хүргэж өгөх хаяг
+              </Text>
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.txtLoc,
+                  address2.latitude && address1.latitude
+                    ? null
+                    : address2.latitude && !address1.latitude
+                    ? {color: '#e3e3e3'}
+                    : null,
+                ]}>
                 {address2.title || ''}
               </Text>
             </View>
