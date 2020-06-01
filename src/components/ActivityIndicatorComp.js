@@ -9,11 +9,10 @@ const ActivityIndicatorComp = ({loading = false}) => {
       visible={loading}
       onRequestClose={() => {
         console.log('close modal');
-      }}
-      useNativeDriver={false}>
+      }}>
       <View style={styles.opacityCenterBlackContainerStyle}>
-        <View style={styles.activityIndicatorWrapperStyle}>
-          <ActivityIndicator size="small" color="#A0A0A0" animating={loading} />
+        <View style={styles.activityIndicatorWrapperStyle2}>
+          <ActivityIndicator size="large" color="#f66725" animating={loading} />
         </View>
       </View>
     </Modal>
@@ -33,6 +32,15 @@ const styles = StyleSheet.create({
     paddingBottom: 25,
     paddingHorizontal: 25,
     borderRadius: 10,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activityIndicatorWrapperStyle2: {
+    padding: 5,
+    paddingBottom: 5,
+    paddingHorizontal: 5,
+    borderRadius: 5,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

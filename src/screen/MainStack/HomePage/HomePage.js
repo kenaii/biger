@@ -197,15 +197,9 @@ class HomePage extends Component {
             const title = results[0].formatted_address;
             const {address1 = {}, address2 = {}} = this.state;
             if (!address1.latitude) {
-              const {onChange = {}} = address1;
-              if (!onChange.latitude && !onChange.longitude) {
-                this.setState({address1: {title, key: 'add1'}, loading: false});
-              }
+              this.setState({address1: {...address1, title}, loading: false});
             } else if (!address2.latitude) {
-              const {onChange = {}} = address2;
-              if (!onChange.latitude && !onChange.longitude) {
-                this.setState({address2: {title, key: 'add2'}, loading: false});
-              }
+              this.setState({address2: {...address2, title}, loading: false});
             }
           }
         })
@@ -244,7 +238,7 @@ class HomePage extends Component {
     action.isSubmitting = false;
     this.setState({sendLoading: true}, async () => {
       try {
-        await sendMailAsync(values);
+        await sendMailAsync({...values, distance});
         this.setState({sendLoading: false}, () => {
           navigation.navigate('Order', distance);
         });
