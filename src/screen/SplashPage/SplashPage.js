@@ -5,9 +5,14 @@ import {
   StyleSheet,
   ActivityIndicator,
   Dimensions,
+  Alert,
+  Platform,
+  Linking,
 } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import {store} from '../../store/store';
+import {getVersionAsync} from '../../service/auth.service';
+import {checkUpdate} from '../../utils/filter';
 
 const {width} = Dimensions.get('window');
 
@@ -15,16 +20,13 @@ class SplashPage extends React.Component {
   constructor(props) {
     super(props);
 
-    this.modalInterRef = React.createRef();
+    // this.modalInterRef = React.createRef();
   }
 
   componentDidMount() {
-    const [state, dispatch] = this.context;
     NetInfo.fetch().then(netState => {
       if (netState.isConnected) {
-        setTimeout(() => {
-          dispatch({type: 'SET_LOADING', payload: false});
-        }, 1000);
+        this.onInitAsync();
       } else {
         this.createTwoButtonAlert();
       }
@@ -33,16 +35,18 @@ class SplashPage extends React.Component {
 
   createTwoButtonAlert = () => {
     Alert.alert(
-      'Connection',
-      'no internet connection',
-      [
-        {
-          text: 'cancel',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
-        },
-        {text: 'Check', onPress: () => this.checkInternetClick()},
-      ],
+      'Интернет',
+      'Интернет холболтоо шалгана уу!',
+      [{text: 'Шалгах', onPress: () => this.checkInternetClick()}],
+      {cancelable: false},
+    );
+  };
+
+  createUpdateAlert = () => {
+    Alert.alert(
+      'Шинэчлэлт',
+      'Шинэ хувилбар гарсан байна аппликейшнээ шинэчилнэ үү!',
+      [{text: 'Шинэчлэх', onPress: () => this.onUpdateClick()}],
       {cancelable: false},
     );
   };
@@ -51,10 +55,40 @@ class SplashPage extends React.Component {
     NetInfo.fetch().then(netState => {
       const [state, dispatch] = this.context;
       if (netState.isConnected) {
-        this.modalInterRef.current.close();
+        this.onInitAsync();
+        // this.modalInterRef.current.close();
         dispatch({type: 'SET_LOADING', payload: false});
+      } else {
+        this.createTwoButtonAlert();
       }
     });
+  };
+
+  onInitAsync = async () => {
+    try {
+      const [state, dispatch] = this.context;
+      const _version = await getVersionAsync();
+      const isUpdate = checkUpdate(_version);
+      console.log('_version', _version, isUpdate);
+      if (isUpdate) {
+        this.createUpdateAlert();
+      } else {
+        setTimeout(() => {
+          dispatch({type: 'SET_LOADING', payload: false});
+        }, 1000);
+      }
+    } catch (error) {}
+  };
+
+  onUpdateClick = () => {
+    if (Platform.OS === 'ios') {
+      console.log('ios clicked');
+      // Linking.openURL(
+      //   `https://itunes.apple.com/jp/app/apple-store/id${APPLE_STORE}?l=en&mt=8`,
+      // );
+    } else {
+      Linking.openURL('market://details?id=com.biger');
+    }
   };
 
   render() {
