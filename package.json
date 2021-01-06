@@ -14,7 +14,7 @@
     "@react-native-community/netinfo": "^5.8.0",
     "@react-navigation/native": "^5.1.7",
     "@react-navigation/stack": "^5.2.14",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "formik": "^2.1.4",
     "geolib": "^3.2.1",
     "react": "16.11.0",
